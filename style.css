@@ -1,0 +1,215 @@
+/* ===== Google Fonts ===== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ===== Global ===== */
+html,
+body,
+[class*="css"] {
+    font-family: 'Inter', sans-serif;
+    color: #222222;
+}
+
+/* ===== Main content area ===== */
+.stMain {
+    background-color: #F5F5F5;
+}
+
+/* ===== Sidebar ===== */
+section[data-testid="stSidebar"] {
+    background-color: #FFFFFF;
+    border-right: 2px solid #2E5E4E;
+}
+
+/* Header within sidebar */
+.sidebar-header {
+    text-align: center;
+    padding: 1.5rem 1rem 1rem 1rem;
+}
+
+.sidebar-logo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 0.8rem;
+    object-fit: contain;
+}
+
+.sidebar-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #2E5E4E;
+    line-height: 1.3;
+}
+
+.sidebar-subtitle {
+    font-size: 0.82rem;
+    color: #666666;
+    margin-top: 4px;
+}
+
+/* Radio buttons list */
+section[data-testid="stSidebar"] .stRadio label {
+    font-size: 0.95rem;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+}
+
+section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label[data-selected="true"] {
+    color: #FFFFFF;
+    background-color: #2E5E4E;
+    font-weight: 600;
+}
+
+/* ===== Headers ===== */
+h1 {
+    color: #2E5E4E;
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+}
+
+h2 {
+    color: #2E5E4E;
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin-top: 1.5rem;
+}
+
+h3 {
+    color: #333333;
+    font-weight: 600;
+    font-size: 1.15rem;
+}
+
+/* ===== Institutional info blocks ===== */
+.info-block {
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    border-left: 3px solid #2E5E4E;
+    border-radius: 4px;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1rem;
+}
+
+.info-block h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #2E5E4E;
+    font-size: 1.05rem;
+}
+
+.info-block p {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: #444444;
+}
+
+/* ===== Horizontal rule ===== */
+.hr-institutional {
+    border: none;
+    border-top: 2px solid #2E5E4E;
+    margin: 2rem 0;
+    opacity: 0.35;
+}
+
+/* ===== Metric cards ===== */
+div[data-testid="stMetric"] {
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+div[data-testid="stMetric"] label {
+    color: #555555;
+    font-size: 0.85rem;
+}
+
+div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
+    color: #2E5E4E;
+    font-weight: 700;
+}
+
+/* ===== Download button ===== */
+.stDownloadButton button {
+    background-color: #2E5E4E;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem 1.6rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+}
+
+.stDownloadButton button:hover {
+    background-color: #24493D;
+    color: #FFFFFF;
+}
+
+/* ===== Plotly chart containers ===== */
+.stPlotlyChart {
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+/* ===== Selectbox / filters ===== */
+.stSelectbox label,
+.stMultiSelect label {
+    font-weight: 500;
+    color: #333333;
+}
+
+/* ===== Tables ===== */
+.stDataFrame {
+    border: 1px solid #DDDDDD;
+    border-radius: 4px;
+}
+
+/* ===== Footer text ===== */
+.footer-text {
+    text-align: center;
+    font-size: 0.78rem;
+    color: #999999;
+    margin-top: 3rem;
+    padding-bottom: 1rem;
+}
+
+/* ===== Subtitle styling ===== */
+.subtitle {
+    font-size: 1.1rem;
+    color: #555555;
+    font-weight: 400;
+    margin-top: -0.5rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+/* ===== Methodology text ===== */
+.methodology-text {
+    font-size: 0.93rem;
+    line-height: 1.75;
+    color: #333333;
+    max-width: 800px;
+}
+
+.methodology-text h3 {
+    margin-top: 1.5rem;
+    color: #2E5E4E;
+}
+
+/* ===== Hide Streamlit branding ===== */
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
+}
