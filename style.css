@@ -17,27 +17,30 @@ body,
 /* ===== Sidebar ===== */
 section[data-testid="stSidebar"] {
     background-color: #FFFFFF;
-    border-right: 2px solid #2E5E4E;
+    border-right: 1px solid #D0D0D0;
 }
 
-/* Header within sidebar */
+/* Institutional identity area */
 .sidebar-header {
     text-align: center;
-    padding: 1.5rem 1rem 1rem 1rem;
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    border-bottom: 1px solid #E0E0E0;
+    margin-bottom: 0.5rem;
 }
 
 .sidebar-logo {
-    width: 60px;
-    height: 60px;
-    margin-bottom: 0.8rem;
+    width: 110px;
+    height: 110px;
+    margin-bottom: 1rem;
     object-fit: contain;
 }
 
 .sidebar-title {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: #2E5E4E;
     line-height: 1.3;
+    letter-spacing: -0.01em;
 }
 
 .sidebar-subtitle {
@@ -46,18 +49,78 @@ section[data-testid="stSidebar"] {
     margin-top: 4px;
 }
 
-/* Radio buttons list */
-section[data-testid="stSidebar"] .stRadio label {
-    font-size: 0.95rem;
-    padding: 8px 12px;
+/* ===== Sidebar Navigation ===== */
+section[data-testid="stSidebar"] .stButton button[kind="tertiary"] {
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px;
+    padding: 10px 16px;
     border-radius: 4px;
-    margin-bottom: 2px;
+    border: none;
+    border-left: 3px solid transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #555555;
+    background-color: transparent;
+    text-align: left !important;
 }
 
-section[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label[data-selected="true"] {
-    color: #FFFFFF;
-    background-color: #2E5E4E;
+/* Force left alignment on inner text */
+section[data-testid="stSidebar"] .stButton button[kind="tertiary"] p {
+    text-align: left !important;
+    flex-grow: 1 !important;
+    margin: 0 !important;
+}
+
+/* Ensure the button's internal flex container aligns left */
+section[data-testid="stSidebar"] .stButton button[kind="tertiary"]>div {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 10px;
+}
+
+/* Icon color */
+section[data-testid="stSidebar"] .stButton button[kind="tertiary"] span[data-testid="stIconMaterial"] {
+    color: #777777;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+/* Hover state */
+section[data-testid="stSidebar"] .stButton button[kind="tertiary"]:hover {
+    background-color: #F5F5F5;
+    color: #333333;
+}
+
+section[data-testid="stSidebar"] .stButton button[kind="tertiary"]:hover span[data-testid="stIconMaterial"] {
+    color: #2E5E4E;
+}
+
+/* Active state — left border accent */
+section[data-testid="stSidebar"] .stButton button[kind="tertiary"]:focus,
+section[data-testid="stSidebar"] .stButton button[kind="tertiary"]:active {
+    background-color: #EEF3F0;
+    color: #2E5E4E;
     font-weight: 600;
+    border-left-color: #2E5E4E;
+    box-shadow: none;
+}
+
+section[data-testid="stSidebar"] .stButton button[kind="tertiary"]:focus span[data-testid="stIconMaterial"],
+section[data-testid="stSidebar"] .stButton button[kind="tertiary"]:active span[data-testid="stIconMaterial"] {
+    color: #2E5E4E;
+}
+
+/* Compact spacing between nav items */
+section[data-testid="stSidebar"] .stButton {
+    margin-bottom: -10px;
 }
 
 /* ===== Headers ===== */
@@ -161,6 +224,7 @@ div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
 .stMultiSelect label {
     font-weight: 500;
     color: #333333;
+    text-align: left;
 }
 
 /* ===== Tables ===== */
@@ -210,6 +274,22 @@ footer {
     visibility: hidden;
 }
 
-header {
-    visibility: hidden;
+/* Hide only the deploy/toolbar UI, keep the header element itself visible
+   so the sidebar collapse/expand control (collapsedControl) works. */
+header[data-testid="stHeader"] {
+    background-color: transparent !important;
+    pointer-events: none;
+}
+
+header[data-testid="stHeader"] .stDeployButton,
+header[data-testid="stHeader"] .stToolbar {
+    display: none;
+}
+
+/* Ensure the sidebar expand button is always visible and clickable */
+div[data-testid="collapsedControl"] {
+    visibility: visible !important;
+    display: flex !important;
+    pointer-events: auto;
+    z-index: 999;
 }
