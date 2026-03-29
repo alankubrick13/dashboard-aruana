@@ -1,0 +1,49 @@
+=== INTEGRACAO BOLSA FAMILIA ===
+
+[1/4] Lendo dataset consolidado...
+  Municipios no dataset: 5570 
+  Colunas actuais: 109 
+
+[2/4] Processando Bolsa Familia 2023...
+
+[*] Lendo: Bolsa familia 2023.xlsx 
+  Meses disponiveis: 202303, 202304, 202305, 202306, 202307, 202308, 202309, 202310, 202311, 202312 
+  Municipios: 5570 
+  Total linhas: 55700 
+  Colunas geradas: bf_n_meses_2023, bf_qtd_familias_media_2023, bf_valor_repassado_media_2023, bf_vlr_medio_benef_media_2023, bf_qtd_familias_total_2023, bf_valor_repassado_total_2023 
+  Municipios com dados 2023: 5570 
+
+[3/4] Processando Bolsa Familia 2024...
+
+[*] Lendo: Bolsa familia 2024.xlsx 
+  Meses disponiveis: 202401, 202402, 202403, 202404, 202405, 202406, 202407, 202408, 202409, 202410, 202411, 202412 
+  Municipios: 5570 
+  Total linhas: 66840 
+  Colunas geradas: bf_n_meses_2024, bf_qtd_familias_media_2024, bf_valor_repassado_media_2024, bf_vlr_medio_benef_media_2024, bf_qtd_familias_total_2024, bf_valor_repassado_total_2024 
+  Municipios com dados 2024: 5570 
+
+[4/4] Fazendo join com dataset consolidado...
+  Apos join 2023: 115 colunas
+  Apos join 2024: 121 colunas
+
+  Municipios com dados BF 2023: 5570 / 5570 
+  Municipios com dados BF 2024: 5570 / 5570 
+
+  Colunas do Bolsa Familia adicionadas ( 12 ):
+    bf_n_meses_2023
+    bf_qtd_familias_media_2023
+    bf_valor_repassado_media_2023
+    bf_vlr_medio_benef_media_2023
+    bf_qtd_familias_total_2023
+    bf_valor_repassado_total_2023
+    bf_n_meses_2024
+    bf_qtd_familias_media_2024
+    bf_valor_repassado_media_2024
+    bf_vlr_medio_benef_media_2024
+    bf_qtd_familias_total_2024
+    bf_valor_repassado_total_2024
+
+Exportando para: dados_consolidados_v3.csv 
+
+=== CONCLUIDO! ===
+Dimensoes finais: 5570 x 120 

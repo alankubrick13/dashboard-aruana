@@ -1,0 +1,49 @@
+=== SHEETS 2023 ===
+2023_&fl=codigo_ibge%2Canomes_s, Planilha1 
+
+Colunas 2023:
+[1] "codigo_ibge"                               
+[2] "anomes_s"                                  
+[3] "qtd_familias_beneficiarias_bolsa_familia_s"
+[4] "valor_repassado_bolsa_familia_s"           
+[5] "pbf_vlr_medio_benef_f"                     
+
+Amostra 2023:
+# A tibble: 5 × 5
+  codigo_ibge anomes_s qtd_familias_beneficiarias_bolsa…¹ valor_repassado_bols…²
+        <dbl>    <dbl>                              <dbl>                  <dbl>
+1      110001   202312                               1724               11790110
+2      110002   202312                               6718               45697520
+3      110003   202312                                326                2173100
+4      110004   202312                               5921               40084140
+5      110005   202312                               1123                8008520
+# ℹ abbreviated names: ¹​qtd_familias_beneficiarias_bolsa_familia_s,
+#   ²​valor_repassado_bolsa_familia_s
+# ℹ 1 more variable: pbf_vlr_medio_benef_f <dbl>
+
+Total sheets / linhas 2023: 55700 
+
+=== SHEETS 2024 ===
+2024_&fl=codigo_ibge%2Canomes_s, Planilha1 
+
+Colunas 2024:
+[1] "codigo_ibge"                               
+[2] "anomes_s"                                  
+[3] "qtd_familias_beneficiarias_bolsa_familia_s"
+[4] "valor_repassado_bolsa_familia_s"           
+[5] "pbf_vlr_medio_benef_f"                     
+
+Amostra 2024:
+# A tibble: 5 × 5
+  codigo_ibge anomes_s qtd_familias_beneficiarias_bolsa…¹ valor_repassado_bols…²
+        <dbl>    <dbl>                              <dbl>                  <dbl>
+1      110001   202412                               1677               11327970
+2      110002   202412                               7710               52475940
+3      110003   202412                                307                2071170
+4      110004   202412                               6066               40415640
+5      110005   202412                               1213                8492020
+# ℹ abbreviated names: ¹​qtd_familias_beneficiarias_bolsa_familia_s,
+#   ²​valor_repassado_bolsa_familia_s
+# ℹ 1 more variable: pbf_vlr_medio_benef_f <dbl>
+
+Total linhas 2024: 66840 

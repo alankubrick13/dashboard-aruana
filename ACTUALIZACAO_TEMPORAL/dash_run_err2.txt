@@ -1,0 +1,51 @@
+Using year/date 2020
+
+Listening on http://127.0.0.1:7777
+Aviso em layer_sf(geom = GeomSf, data = data, mapping = mapping, stat = stat,  :
+  Ignoring unknown aesthetics: text
+Aviso em layer_sf(geom = GeomSf, data = data, mapping = mapping, stat = stat,  :
+  Ignoring unknown aesthetics: text
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso em layer_sf(geom = GeomSf, data = data, mapping = mapping, stat = stat,  :
+  Ignoring unknown aesthetics: text
+Aviso em prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Aviso em layer_sf(geom = GeomSf, data = data, mapping = mapping, stat = stat,  :
+  Ignoring unknown aesthetics: text
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso em layer_sf(geom = GeomSf, data = data, mapping = mapping, stat = stat,  :
+  Ignoring unknown aesthetics: text
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso em layer_sf(geom = GeomSf, data = data, mapping = mapping, stat = stat,  :
+  Ignoring unknown aesthetics: text
+Aviso em layer_sf(geom = GeomSf, data = data, mapping = mapping, stat = stat,  :
+  Ignoring unknown aesthetics: text
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso em layer_sf(geom = GeomSf, data = data, mapping = mapping, stat = stat,  :
+  Ignoring unknown aesthetics: text
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso em prettyNum(.Internal(format(x, trim, digits, nsmall, width, 3L,  :
+  'big.mark' e 'decimal.mark' são ambos '.', o que pode ser confuso
+Aviso em layer_sf(geom = GeomSf, data = data, mapping = mapping, stat = stat,  :
+  Ignoring unknown aesthetics: text
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso: Some values were outside the color scale and will be treated as NA
+Aviso em layer_sf(geom = GeomSf, data = data, mapping = mapping, stat = stat,  :
+  Ignoring unknown aesthetics: text

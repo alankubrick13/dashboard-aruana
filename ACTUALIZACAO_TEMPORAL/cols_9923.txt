@@ -1,0 +1,13 @@
+nivel_territorial_codigo
+nivel_territorial
+unidade_de_medida_codigo
+unidade_de_medida
+valor
+municipio_codigo
+municipio
+ano_codigo
+ano
+variavel_codigo
+variavel
+situacao_do_domicilio_codigo
+situacao_do_domicilio

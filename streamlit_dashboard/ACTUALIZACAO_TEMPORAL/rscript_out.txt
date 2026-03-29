@@ -1,0 +1,246 @@
+=== EXTRACAO INICIADA ===
+
+[1/4] Populacao por UF (Tabela 9923)...
+  UF 11 ... OK ( 156 )
+  UF 12 ... OK ( 66 )
+  UF 13 ... OK ( 186 )
+  UF 14 ... OK ( 45 )
+  UF 15 ... OK ( 432 )
+  UF 16 ... OK ( 48 )
+  UF 17 ... OK ( 417 )
+  UF 21 ... OK ( 651 )
+  UF 22 ... OK ( 672 )
+  UF 23 ... OK ( 552 )
+  UF 24 ... OK ( 501 )
+  UF 25 ... OK ( 669 )
+  UF 26 ... OK ( 555 )
+  UF 27 ... OK ( 306 )
+  UF 28 ... OK ( 225 )
+  UF 29 ... OK ( 1251 )
+  UF 31 ... OK ( 2559 )
+  UF 32 ... OK ( 234 )
+  UF 33 ... OK ( 276 )
+  UF 35 ... OK ( 1935 )
+  UF 41 ... OK ( 1197 )
+  UF 42 ... OK ( 885 )
+  UF 43 ... OK ( 1491 )
+  UF 50 ... OK ( 237 )
+  UF 51 ... OK ( 423 )
+  UF 52 ... OK ( 738 )
+  UF 53 ... OK ( 3 )
+Total linhas pop: 16710 
+Municipios pop: 5570 
+
+[2/4] Seguranca Alimentar Completa (9552 / C12404)...
+  Extraindo tabela 9552 (todas variaveis e categorias)...
+  Linhas extraidas: 2592 
+  Colunas:
+   nivel_territorial_codigo, nivel_territorial, unidade_de_medida_codigo, unidade_de_medida, valor, unidade_da_federacao_codigo, unidade_da_federacao, ano_codigo, ano, variavel_codigo, variavel, situacao_de_seguranca_alimentar_existente_no_domicilio_codigo, situacao_de_seguranca_alimentar_existente_no_domicilio, situacao_do_domicilio_codigo, situacao_do_domicilio 
+  Mapeamento -> categoria: situacao_de_seguranca_alimentar_existente_no_domicilio_codigo | variavel: variavel_codigo | uf: unidade_da_federacao_codigo | ano: ano_codigo | valor: valor 
+  Categorias encontradas: total, seg, inseg, inseg_leve, inseg_moderada, inseg_grave 
+  Variaveis encontradas: dom_mil, cv_dom, perc_dom, cv_perc_dom, mor_mil, cv_mor, perc_mor, cv_perc_mor 
+  Anos encontrados: 2023, 2024 
+UFs fome: 27 
+Colunas fome_wide ( 96 variaveis de seguranca):
+  total_dom_mil_2023
+  seg_dom_mil_2023
+  inseg_dom_mil_2023
+  inseg_leve_dom_mil_2023
+  inseg_moderada_dom_mil_2023
+  inseg_grave_dom_mil_2023
+  total_cv_dom_2023
+  seg_cv_dom_2023
+  inseg_cv_dom_2023
+  inseg_leve_cv_dom_2023
+  inseg_moderada_cv_dom_2023
+  inseg_grave_cv_dom_2023
+  total_perc_dom_2023
+  seg_perc_dom_2023
+  inseg_perc_dom_2023
+  inseg_leve_perc_dom_2023
+  inseg_moderada_perc_dom_2023
+  inseg_grave_perc_dom_2023
+  total_cv_perc_dom_2023
+  seg_cv_perc_dom_2023
+  inseg_cv_perc_dom_2023
+  inseg_leve_cv_perc_dom_2023
+  inseg_moderada_cv_perc_dom_2023
+  inseg_grave_cv_perc_dom_2023
+  total_mor_mil_2023
+  seg_mor_mil_2023
+  inseg_mor_mil_2023
+  inseg_leve_mor_mil_2023
+  inseg_moderada_mor_mil_2023
+  inseg_grave_mor_mil_2023
+  total_cv_mor_2023
+  seg_cv_mor_2023
+  inseg_cv_mor_2023
+  inseg_leve_cv_mor_2023
+  inseg_moderada_cv_mor_2023
+  inseg_grave_cv_mor_2023
+  total_perc_mor_2023
+  seg_perc_mor_2023
+  inseg_perc_mor_2023
+  inseg_leve_perc_mor_2023
+  inseg_moderada_perc_mor_2023
+  inseg_grave_perc_mor_2023
+  total_cv_perc_mor_2023
+  seg_cv_perc_mor_2023
+  inseg_cv_perc_mor_2023
+  inseg_leve_cv_perc_mor_2023
+  inseg_moderada_cv_perc_mor_2023
+  inseg_grave_cv_perc_mor_2023
+  total_dom_mil_2024
+  seg_dom_mil_2024
+  inseg_dom_mil_2024
+  inseg_leve_dom_mil_2024
+  inseg_moderada_dom_mil_2024
+  inseg_grave_dom_mil_2024
+  total_cv_dom_2024
+  seg_cv_dom_2024
+  inseg_cv_dom_2024
+  inseg_leve_cv_dom_2024
+  inseg_moderada_cv_dom_2024
+  inseg_grave_cv_dom_2024
+  total_perc_dom_2024
+  seg_perc_dom_2024
+  inseg_perc_dom_2024
+  inseg_leve_perc_dom_2024
+  inseg_moderada_perc_dom_2024
+  inseg_grave_perc_dom_2024
+  total_cv_perc_dom_2024
+  seg_cv_perc_dom_2024
+  inseg_cv_perc_dom_2024
+  inseg_leve_cv_perc_dom_2024
+  inseg_moderada_cv_perc_dom_2024
+  inseg_grave_cv_perc_dom_2024
+  total_mor_mil_2024
+  seg_mor_mil_2024
+  inseg_mor_mil_2024
+  inseg_leve_mor_mil_2024
+  inseg_moderada_mor_mil_2024
+  inseg_grave_mor_mil_2024
+  total_cv_mor_2024
+  seg_cv_mor_2024
+  inseg_cv_mor_2024
+  inseg_leve_cv_mor_2024
+  inseg_moderada_cv_mor_2024
+  inseg_grave_cv_mor_2024
+  total_perc_mor_2024
+  seg_perc_mor_2024
+  inseg_perc_mor_2024
+  inseg_leve_perc_mor_2024
+  inseg_moderada_perc_mor_2024
+  inseg_grave_perc_mor_2024
+  total_cv_perc_mor_2024
+  seg_cv_perc_mor_2024
+  inseg_cv_perc_mor_2024
+  inseg_leve_cv_perc_mor_2024
+  inseg_moderada_cv_perc_mor_2024
+  inseg_grave_cv_perc_mor_2024
+
+[3/4] Agricultura (5457)...
+Municipios agro: 5563 
+
+[4/4] Metadados geobr...
+
+Consolidando...
+Municipios finais: 5570 
+Total colunas: 108 
+Colunas de seguranca alimentar ( 96 ):
+  total_dom_mil_2023
+  seg_dom_mil_2023
+  inseg_dom_mil_2023
+  inseg_leve_dom_mil_2023
+  inseg_moderada_dom_mil_2023
+  inseg_grave_dom_mil_2023
+  total_cv_dom_2023
+  seg_cv_dom_2023
+  inseg_cv_dom_2023
+  inseg_leve_cv_dom_2023
+  inseg_moderada_cv_dom_2023
+  inseg_grave_cv_dom_2023
+  total_perc_dom_2023
+  seg_perc_dom_2023
+  inseg_perc_dom_2023
+  inseg_leve_perc_dom_2023
+  inseg_moderada_perc_dom_2023
+  inseg_grave_perc_dom_2023
+  total_cv_perc_dom_2023
+  seg_cv_perc_dom_2023
+  inseg_cv_perc_dom_2023
+  inseg_leve_cv_perc_dom_2023
+  inseg_moderada_cv_perc_dom_2023
+  inseg_grave_cv_perc_dom_2023
+  total_mor_mil_2023
+  seg_mor_mil_2023
+  inseg_mor_mil_2023
+  inseg_leve_mor_mil_2023
+  inseg_moderada_mor_mil_2023
+  inseg_grave_mor_mil_2023
+  total_cv_mor_2023
+  seg_cv_mor_2023
+  inseg_cv_mor_2023
+  inseg_leve_cv_mor_2023
+  inseg_moderada_cv_mor_2023
+  inseg_grave_cv_mor_2023
+  total_perc_mor_2023
+  seg_perc_mor_2023
+  inseg_perc_mor_2023
+  inseg_leve_perc_mor_2023
+  inseg_moderada_perc_mor_2023
+  inseg_grave_perc_mor_2023
+  total_cv_perc_mor_2023
+  seg_cv_perc_mor_2023
+  inseg_cv_perc_mor_2023
+  inseg_leve_cv_perc_mor_2023
+  inseg_moderada_cv_perc_mor_2023
+  inseg_grave_cv_perc_mor_2023
+  total_dom_mil_2024
+  seg_dom_mil_2024
+  inseg_dom_mil_2024
+  inseg_leve_dom_mil_2024
+  inseg_moderada_dom_mil_2024
+  inseg_grave_dom_mil_2024
+  total_cv_dom_2024
+  seg_cv_dom_2024
+  inseg_cv_dom_2024
+  inseg_leve_cv_dom_2024
+  inseg_moderada_cv_dom_2024
+  inseg_grave_cv_dom_2024
+  total_perc_dom_2024
+  seg_perc_dom_2024
+  inseg_perc_dom_2024
+  inseg_leve_perc_dom_2024
+  inseg_moderada_perc_dom_2024
+  inseg_grave_perc_dom_2024
+  total_cv_perc_dom_2024
+  seg_cv_perc_dom_2024
+  inseg_cv_perc_dom_2024
+  inseg_leve_cv_perc_dom_2024
+  inseg_moderada_cv_perc_dom_2024
+  inseg_grave_cv_perc_dom_2024
+  total_mor_mil_2024
+  seg_mor_mil_2024
+  inseg_mor_mil_2024
+  inseg_leve_mor_mil_2024
+  inseg_moderada_mor_mil_2024
+  inseg_grave_mor_mil_2024
+  total_cv_mor_2024
+  seg_cv_mor_2024
+  inseg_cv_mor_2024
+  inseg_leve_cv_mor_2024
+  inseg_moderada_cv_mor_2024
+  inseg_grave_cv_mor_2024
+  total_perc_mor_2024
+  seg_perc_mor_2024
+  inseg_perc_mor_2024
+  inseg_leve_perc_mor_2024
+  inseg_moderada_perc_mor_2024
+  inseg_grave_perc_mor_2024
+  total_cv_perc_mor_2024
+  seg_cv_perc_mor_2024
+  inseg_cv_perc_mor_2024
+  inseg_leve_cv_perc_mor_2024
+  inseg_moderada_cv_perc_mor_2024
+  inseg_grave_cv_perc_mor_2024

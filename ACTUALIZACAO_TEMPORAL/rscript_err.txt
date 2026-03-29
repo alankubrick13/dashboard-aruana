@@ -1,0 +1,10 @@
+Using year/date 2022
+Mensagen de aviso:
+st_centroid assumes attributes are constant over geometries 
+Error in file(file, ifelse(append, "a", "w"), encoding = fileEncoding) : 
+  não é possível abrir a conexão
+Calls: write.csv2 -> eval.parent -> eval -> eval -> <Anonymous> -> file
+Além disso: Mensagen de aviso:
+In file(file, ifelse(append, "a", "w"), encoding = fileEncoding) :
+  não foi possível abrir o arquivo 'dados_consolidados_2023_2024.csv': Permission denied
+Execução interrompida

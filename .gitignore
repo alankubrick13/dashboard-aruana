@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# R
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# Large Data (GitHub limit is 100MB per file)
+# Excluding the main raw data folder due to 2.2GB file
+BASE DE DADOS/
+
+# OS specific files
+.DS_Store
+Thumbs.db

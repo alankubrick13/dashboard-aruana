@@ -1,0 +1,12 @@
+  nivel_territorial_codigo nivel_territorial unidade_de_medida_codigo
+2                        6         Município                       45
+3                        6         Município                       45
+  unidade_de_medida valor municipio_codigo       municipio ano_codigo  ano
+2           Pessoas 14021          1200013 Acrelândia - AC       2022 2022
+3           Pessoas  7765          1200013 Acrelândia - AC       2022 2022
+  variavel_codigo            variavel situacao_do_domicilio_codigo
+2              93 População residente                         6795
+3              93 População residente                            1
+  situacao_do_domicilio
+2                 Total
+3                Urbana

@@ -1,0 +1,435 @@
+Verificando global.R...
+expression(suppressPackageStartupMessages({
+    pkgs <- c("shiny", "bslib", "dplyr", "ggplot2", "plotly", 
+        "leaflet", "sf", "geobr", "scales", "DT", "tidyr", "tibble", 
+        "bsicons")
+    for (p in pkgs) {
+        if (!require(p, character.only = TRUE, quietly = TRUE)) 
+            install.packages(p, repos = "https://cran.r-project.org", 
+                quiet = TRUE)
+        library(p, character.only = TRUE, quietly = TRUE)
+    }
+}), COR_ROXO <- "#7237cb", COR_ROXO2 <- "#9b6de0", COR_CREME <- "#f9f7f6", 
+    COR_VERDE <- "#4c734c", COR_VERDE2 <- "#6fa06f", COR_DARK <- "#1e1e2e", 
+    COR_WARN <- "#e07b3a", COR_PERIGO <- "#c0392b", COR_GRID <- "#e8e3f5", 
+    CORES_REGIOES <- c(Norte = "#7237cb", Nordeste = "#c0392b", 
+        `Centro-Oeste` = "#e07b3a", Sudeste = "#27ae60", Sul = "#2980b9"), 
+    csv_path <- file.path(dirname(getwd()), "dados_consolidados_v3.csv"), 
+    if (!file.exists(csv_path)) csv_path <- "dados_consolidados_v3.csv", 
+    df <- mutate(read.csv2(csv_path, fileEncoding = "UTF-8", 
+        stringsAsFactors = FALSE), code_muni = as.character(code_muni), 
+        populacao = as.numeric(populacao), pop_urbana = as.numeric(pop_urbana), 
+        pop_rural = as.numeric(pop_rural), perc_urbana = as.numeric(perc_urbana), 
+        perc_rural = as.numeric(perc_rural), area_plantada_ha = as.numeric(area_plantada_ha), 
+        lat = as.numeric(lat), lon = as.numeric(lon), across(starts_with("total_") | 
+            starts_with("seg_") | starts_with("inseg_") | starts_with("bf_"), 
+            as.numeric)), df_uf <- mutate(summarise(group_by(df, 
+        abbrev_state, name_region), n_municipios = n(), populacao = sum(populacao, 
+        na.rm = TRUE), pop_urbana = sum(pop_urbana, na.rm = TRUE), 
+        pop_rural = sum(pop_rural, na.rm = TRUE), area_plantada_ha = sum(area_plantada_ha, 
+            na.rm = TRUE), bf_familias_2023 = sum(bf_qtd_familias_media_2023, 
+            na.rm = TRUE), bf_familias_2024 = sum(bf_qtd_familias_media_2024, 
+            na.rm = TRUE), bf_valor_2023 = sum(bf_valor_repassado_media_2023, 
+            na.rm = TRUE), bf_valor_2024 = sum(bf_valor_repassado_media_2024, 
+            na.rm = TRUE), bf_vlr_medio_2023 = mean(bf_vlr_medio_benef_media_2023, 
+            na.rm = TRUE), bf_vlr_medio_2024 = mean(bf_vlr_medio_benef_media_2024, 
+            na.rm = TRUE), across(c(seg_perc_dom_2023, seg_perc_dom_2024, 
+            inseg_perc_dom_2023, inseg_perc_dom_2024, inseg_leve_perc_dom_2023, 
+            inseg_leve_perc_dom_2024, inseg_moderada_perc_dom_2023, 
+            inseg_moderada_perc_dom_2024, inseg_grave_perc_dom_2023, 
+            inseg_grave_perc_dom_2024, inseg_grave_mor_mil_2023, 
+            inseg_grave_mor_mil_2024, inseg_mor_mil_2023, inseg_mor_mil_2024, 
+            inseg_leve_dom_mil_2023, inseg_leve_dom_mil_2024, 
+            inseg_moderada_dom_mil_2023, inseg_moderada_dom_mil_2024, 
+            inseg_grave_dom_mil_2023, inseg_grave_dom_mil_2024, 
+            seg_dom_mil_2023, seg_dom_mil_2024, inseg_dom_mil_2023, 
+            inseg_dom_mil_2024, inseg_leve_mor_mil_2023, inseg_leve_mor_mil_2024, 
+            inseg_moderada_mor_mil_2023, inseg_moderada_mor_mil_2024, 
+            seg_mor_mil_2023, seg_mor_mil_2024, total_dom_mil_2023, 
+            total_dom_mil_2024), first), .groups = "drop"), perc_rural_uf = pop_rural/populacao * 
+        100, perc_urbana_uf = pop_urbana/populacao * 100, area_per_capita = area_plantada_ha/populacao, 
+        bf_cobertura_2024 = bf_familias_2024/populacao * 1000, 
+        bf_cobertura_2023 = bf_familias_2023/populacao * 1000, 
+        delta_inseg_grave = inseg_grave_perc_dom_2024 - inseg_grave_perc_dom_2023, 
+        delta_inseg = inseg_perc_dom_2024 - inseg_perc_dom_2023), 
+    rds_path <- file.path(tempdir(), "estados_sf.rds"), if (file.exists(rds_path)) {
+        estados_sf <- readRDS(rds_path)
+    } else {
+        estados_sf <- geobr::read_state(year = 2022, showProgress = FALSE)
+        saveRDS(estados_sf, rds_path)
+    }, estados_sf <- left_join(estados_sf, df_uf, by = "abbrev_state"), 
+    pop_total_br <- sum(df_uf$populacao, na.rm = TRUE), inseg_grave_br24 <- weighted.mean(df_uf$inseg_grave_perc_dom_2024, 
+        df_uf$total_dom_mil_2024, na.rm = TRUE), inseg_grave_br23 <- weighted.mean(df_uf$inseg_grave_perc_dom_2023, 
+        df_uf$total_dom_mil_2023, na.rm = TRUE), inseg_total_br24 <- weighted.mean(df_uf$inseg_perc_dom_2024, 
+        df_uf$total_dom_mil_2024, na.rm = TRUE), mor_fome_br24 <- sum(df_uf$inseg_grave_mor_mil_2024, 
+        na.rm = TRUE) * 1000, bf_familias_br24 <- sum(df_uf$bf_familias_2024, 
+        na.rm = TRUE), bf_familias_br23 <- sum(df_uf$bf_familias_2023, 
+        na.rm = TRUE), bf_valor_br24 <- sum(df_uf$bf_valor_2024, 
+        na.rm = TRUE), bf_vlr_medio_br24 <- mean(df_uf$bf_vlr_medio_2024, 
+        na.rm = TRUE), plotly_layout <- function(p, ...) {
+        layout(p, paper_bgcolor = COR_CREME, plot_bgcolor = COR_CREME, 
+            font = list(family = "Inter, sans-serif", color = COR_DARK), 
+            margin = list(l = 10, r = 10, t = 30, b = 10), ...)
+    }, mapa_uf <- function(coluna, titulo, pal_low = COR_CREME, 
+        pal_high = COR_ROXO, sufixo = "", fmt = "%.1f", na_cor = "#cccccc") {
+        dados <- estados_sf
+        dados$VAR <- dados[[coluna]]
+        p <- ggplot(dados) + geom_sf(aes(fill = VAR, text = paste0("<b>", 
+            abbrev_state, "</b><br>", titulo, ": ", sprintf(fmt, 
+                VAR), sufixo)), color = "white", linewidth = 0.4) + 
+            scale_fill_gradient(low = pal_low, high = pal_high, 
+                name = titulo, na.value = na_cor, labels = function(x) paste0(sprintf(fmt, 
+                  x), sufixo)) + theme_void() + theme(legend.position = "bottom", 
+            legend.title = element_text(size = 9, color = COR_DARK), 
+            legend.text = element_text(size = 8), plot.background = element_rect(fill = COR_CREME, 
+                color = NA), legend.background = element_rect(fill = COR_CREME, 
+                color = NA), legend.key.height = unit(0.4, "cm"))
+        plotly_layout(ggplotly(p, tooltip = "text"), legend = list(orientation = "h", 
+            y = -0.08, x = 0.1))
+    }, scatter_uf <- function(x_col, y_col, x_lab, y_lab, x_suf = "", 
+        y_suf = "", x_fmt = "%.1f", y_fmt = "%.1f") {
+        d <- filter(mutate(df_uf, X = .data[[x_col]], Y = .data[[y_col]]), 
+            !is.na(X), !is.na(Y))
+        plotly_layout(plot_ly(d, x = ~X, y = ~Y, text = ~abbrev_state, 
+            color = ~name_region, colors = CORES_REGIOES, type = "scatter", 
+            mode = "markers+text", textposition = "top center", 
+            marker = list(size = 12, opacity = 0.85, line = list(color = "white", 
+                width = 1.5)), hovertemplate = paste0("<b>%{text}</b><br>", 
+                x_lab, ": ", x_fmt, x_suf, "<br>", y_lab, ": ", 
+                y_fmt, y_suf, "<extra></extra>")), xaxis = list(title = paste0(x_lab, 
+            if_else(x_suf != "", paste0(" (", x_suf, ")"), "")), 
+            gridcolor = COR_GRID), yaxis = list(title = paste0(y_lab, 
+            if_else(y_suf != "", paste0(" (", y_suf, ")"), "")), 
+            gridcolor = COR_GRID), legend = list(title = list(text = "Região"), 
+            orientation = "v", font = list(size = 10)))
+    }, tema_app <- bs_theme(version = 5, bg = COR_CREME, fg = "#1a1a2e", 
+        primary = COR_ROXO, secondary = COR_VERDE, success = COR_VERDE, 
+        warning = COR_WARN, danger = COR_PERIGO, base_font = font_google("Inter"), 
+        heading_font = font_google("Inter"), `navbar-bg` = COR_DARK, 
+        `card-border-radius` = "12px", `card-cap-bg` = "white"))
+Verificando app.R...
+expression(ui <- page_navbar(title = tags$div(style = "display:flex;align-items:center;gap:10px;", 
+    tags$img(src = "logo_aruana.svg", height = "34px", style = "filter:brightness(0) invert(1);"), 
+    tags$span("Observatório da Fome", style = "font-weight:700;color:#f9f7f6;font-size:1rem;"), 
+    tags$span("| Brasil", style = "font-weight:300;color:#aaa;font-size:0.82rem;")), 
+    theme = tema_app, window_title = "Observatório da Fome — ONG Aruana", 
+    fillable = FALSE, header = tags$head(tags$link(rel = "stylesheet", 
+        href = "styles.css"), tags$link(rel = "icon", href = "logo_aruana.svg")), 
+    nav_panel("🇧🇷 Panorama", layout_columns(col_widths = c(2, 
+        2, 2, 2, 2, 2), gap = "0.8rem", value_box("População Total", 
+        textOutput("kpi_pop"), showcase = bsicons::bs_icon("people-fill"), 
+        class = "vb-branco"), value_box("Inseg. Alimentar 2024", 
+        textOutput("kpi_inseg_total"), showcase = bsicons::bs_icon("exclamation-triangle-fill"), 
+        class = "vb-warn"), value_box("Inseg. Grave 2024", textOutput("kpi_inseg_grave"), 
+        showcase = bsicons::bs_icon("heartbreak-fill"), class = "vb-perigo"), 
+        value_box("Pessoas em Situação de Fome", textOutput("kpi_mor_fome"), 
+            showcase = bsicons::bs_icon("person-x-fill"), class = "vb-perigo"), 
+        value_box("Famílias no BF 2024", textOutput("kpi_bf_fam"), 
+            showcase = bsicons::bs_icon("house-heart-fill"), 
+            class = "vb-verde"), value_box("BF — Valor Mensal Total", 
+            textOutput("kpi_bf_val"), showcase = bsicons::bs_icon("currency-dollar"), 
+            class = "vb-roxo")), br(), layout_columns(col_widths = c(7, 
+        5), gap = "1rem", card(card_header("🗺️ Insegurança Grave por Estado — % Domicílios (2024)"), 
+        plotlyOutput("mapa_inseg", height = "400px")), card(card_header("📊 Ranking dos 27 Estados — Insegurança Grave 2024"), 
+        plotlyOutput("bar_ranking", height = "400px"))), br(), 
+        layout_columns(col_widths = c(6, 6), gap = "1rem", card(card_header("📉 Variação da Inseg. Grave 2023 → 2024 (pontos percentuais)"), 
+            plotlyOutput("bar_variacao", height = "300px")), 
+            card(card_header("🥧 Composição Nacional — Segurança Alimentar 2024"), 
+                plotlyOutput("donut_br", height = "300px"))), 
+        tags$div(class = "rodape", "Fontes: IBGE Censo 2022 · PNAD Contínua 2023/2024 · MDS/Bolsa Família 2023/2024 · ONG Aruana")), 
+    nav_panel("🍽️ Seg. Alimentar", layout_columns(col_widths = c(3, 
+        9), gap = "1rem", card(card_header("🔎 Filtros"), card_body(selectInput("uf_sa", 
+        "Estado:", choices = sort(unique(df_uf$abbrev_state)), 
+        selected = "MA"), radioButtons("ano_sa", "Ano:", choices = c("2023", 
+        "2024"), selected = "2024", inline = TRUE), hr(), tags$p(class = "text-muted small", 
+        "Selecione um estado e ano para ver a composição detalhada.", 
+        "Os dados de insegurança alimentar têm representatividade estadual (PNAD Contínua)."))), 
+        layout_rows(layout_columns(col_widths = c(5, 7), gap = "1rem", 
+            card(card_header("🥧 Composição por Categoria"), 
+                card_body(plotlyOutput("donut_uf", height = "280px"))), 
+            card(card_header("🏘️ Domicílios e Moradores por Categoria (Mil)"), 
+                card_body(plotlyOutput("bar_dom_mor", height = "280px")))), 
+            card(card_header("📈 Comparativo 2023 vs 2024 — % Domicílios por Categoria"), 
+                card_body(plotlyOutput("bar_anos", height = "260px"))))), 
+        br(), card(card_header("🏆 Ranking Completo — % Domicílios com Insegurança por Estado"), 
+            card_body(DTOutput("tabela_sa")))), nav_panel("💰 Bolsa Família", 
+        layout_columns(col_widths = c(4, 4, 4), gap = "0.8rem", 
+            value_box("Famílias Beneficiárias (média mensal 2024)", 
+                textOutput("kpi_bf2_fam"), class = "vb-verde", 
+                showcase = bsicons::bs_icon("house-heart-fill")), 
+            value_box("Valor Médio por Benefício 2024", textOutput("kpi_bf2_vlr"), 
+                class = "vb-roxo", showcase = bsicons::bs_icon("cash-coin")), 
+            value_box("Variação Famílias 2023 → 2024", textOutput("kpi_bf2_var"), 
+                class = "vb-branco", showcase = bsicons::bs_icon("graph-up-arrow"))), 
+        br(), layout_columns(col_widths = c(6, 6), gap = "1rem", 
+            card(card_header("🗺️ Cobertura BF — Famílias por 1.000 Habitantes (2024)"), 
+                plotlyOutput("mapa_bf_cob", height = "380px")), 
+            card(card_header("💸 Total Repassado por Estado — R$ médio mensal (2024)"), 
+                plotlyOutput("bar_bf_val", height = "380px"))), 
+        br(), layout_columns(col_widths = c(6, 6), gap = "1rem", 
+            card(card_header("🔗 Cobertura BF vs Inseg. Grave por Estado (2024)"), 
+                plotlyOutput("scatter_bf_inseg", height = "340px")), 
+            card(card_header("🗺️ Valor Médio do Benefício por Estado (R$, 2024)"), 
+                plotlyOutput("mapa_bf_vlr", height = "340px")))), 
+    nav_panel("🌿 Produção", layout_columns(col_widths = c(4, 
+        4, 4), gap = "0.8rem", value_box("Área Total Plantada", 
+        textOutput("kpi_area"), class = "vb-verde", showcase = bsicons::bs_icon("tree-fill")), 
+        value_box("% Pop. Rural (ponderada)", textOutput("kpi_rural"), 
+            class = "vb-branco", showcase = bsicons::bs_icon("house-fill")), 
+        value_box("Municípios sem área registada", textOutput("kpi_sem_area"), 
+            class = "vb-branco", showcase = bsicons::bs_icon("question-circle"))), 
+        br(), layout_columns(col_widths = c(6, 6), gap = "1rem", 
+            card(card_header("🗺️ Área Plantada per Capita por Estado (ha/hab)"), 
+                plotlyOutput("mapa_area", height = "380px")), 
+            card(card_header("🌾 Paradoxo: Área Plantada per Capita vs Inseg. Grave"), 
+                plotlyOutput("scatter_area", height = "380px"))), 
+        br(), layout_columns(col_widths = c(7, 5), gap = "1rem", 
+            card(card_header("🏙️ Urbanização vs Ruralidade por Estado (%)"), 
+                plotlyOutput("bar_urb_rural", height = "320px")), 
+            card(card_header("🗺️ % População Rural por Estado"), 
+                plotlyOutput("mapa_rural", height = "320px")))), 
+    nav_panel("🔍 Correlações", layout_columns(col_widths = c(6, 
+        6), gap = "1rem", card(card_header("📍 Ruralidade vs Insegurança Grave (2024)"), 
+        plotlyOutput("sc_rural_inseg", height = "330px")), card(card_header("📍 Cobertura BF vs Insegurança Grave (2024)"), 
+        plotlyOutput("sc_bf_inseg", height = "330px"))), br(), 
+        layout_columns(col_widths = c(6, 6), gap = "1rem", card(card_header("📍 Valor Médio BF vs Insegurança Grave (2024)"), 
+            plotlyOutput("sc_vlr_inseg", height = "330px")), 
+            card(card_header("📍 Área Plantada per Capita vs Insegurança Grave"), 
+                plotlyOutput("sc_area_inseg", height = "330px"))), 
+        br(), card(card_header("📋 Tabela Completa de Indicadores por Estado"), 
+            card_body(DTOutput("tabela_full"))))), server <- function(input, 
+    output, session) {
+    output$kpi_pop <- renderText(format(pop_total_br, big.mark = ".", 
+        decimal.mark = ","))
+    output$kpi_inseg_total <- renderText(paste0(round(inseg_total_br24, 
+        1), "%"))
+    output$kpi_inseg_grave <- renderText(paste0(round(inseg_grave_br24, 
+        1), "%"))
+    output$kpi_mor_fome <- renderText(paste0(round(mor_fome_br24/1e+06, 
+        1), " milhões"))
+    output$kpi_bf_fam <- renderText(paste0(format(round(bf_familias_br24/1e+06, 
+        2), nsmall = 2, decimal.mark = ","), " mi"))
+    output$kpi_bf_val <- renderText(paste0("R$ ", format(round(bf_valor_br24/1e+09, 
+        2), nsmall = 2, decimal.mark = ","), " bi"))
+    output$kpi_bf2_fam <- renderText(paste0(format(round(bf_familias_br24/1e+06, 
+        2), nsmall = 2, decimal.mark = ","), " mi"))
+    output$kpi_bf2_vlr <- renderText(paste0("R$ ", format(round(bf_vlr_medio_br24, 
+        2), nsmall = 2, big.mark = ".", decimal.mark = ",")))
+    output$kpi_bf2_var <- renderText({
+        v <- (bf_familias_br24 - bf_familias_br23)/bf_familias_br23 * 
+            100
+        paste0(sprintf("%+.1f", v), "%")
+    })
+    output$kpi_area <- renderText(paste0(format(round(sum(df$area_plantada_ha, 
+        na.rm = TRUE)/1e+06, 1), decimal.mark = ","), " M ha"))
+    output$kpi_rural <- renderText(paste0(round(weighted.mean(df_uf$perc_rural_uf, 
+        df_uf$populacao, na.rm = TRUE), 1), "%"))
+    output$kpi_sem_area <- renderText(format(sum(is.na(df$area_plantada_ha)), 
+        big.mark = "."))
+    output$mapa_inseg <- renderPlotly({
+        mapa_uf("inseg_grave_perc_dom_2024", "Inseg. Grave (%)", 
+            pal_low = "#f5eefd", pal_high = COR_ROXO, sufixo = "%")
+    })
+    output$bar_ranking <- renderPlotly({
+        d <- mutate(arrange(df_uf, inseg_grave_perc_dom_2024), 
+            cor = if_else(inseg_grave_perc_dom_2024 >= quantile(inseg_grave_perc_dom_2024, 
+                0.66, na.rm = TRUE), COR_PERIGO, COR_ROXO2))
+        plotly_layout(plot_ly(d, y = ~reorder(abbrev_state, inseg_grave_perc_dom_2024), 
+            x = ~inseg_grave_perc_dom_2024, type = "bar", orientation = "h", 
+            marker = list(color = d$cor), hovertemplate = "<b>%{y}</b><br>Inseg. Grave: %{x:.1f}%<extra></extra>"), 
+            xaxis = list(title = "% Domicílios", ticksuffix = "%", 
+                gridcolor = COR_GRID), yaxis = list(title = "", 
+                tickfont = list(size = 10)), showlegend = FALSE)
+    })
+    output$bar_variacao <- renderPlotly({
+        d <- mutate(arrange(df_uf, delta_inseg_grave), cor = if_else(delta_inseg_grave > 
+            0, COR_PERIGO, COR_VERDE))
+        plotly_layout(plot_ly(d, x = ~reorder(abbrev_state, delta_inseg_grave), 
+            y = ~delta_inseg_grave, type = "bar", marker = list(color = d$cor), 
+            hovertemplate = "<b>%{x}</b><br>Variação: %{y:+.1f} p.p.<extra></extra>"), 
+            xaxis = list(title = ""), yaxis = list(title = "Variação (p.p.)", 
+                gridcolor = COR_GRID, zeroline = TRUE, zerolinecolor = "#999", 
+                zerolinewidth = 1.5), showlegend = FALSE)
+    })
+    output$donut_br <- renderPlotly({
+        cats <- tibble(label = c("Com Segurança Alimentar", 
+            "Inseg. Leve", "Inseg. Moderada", "Inseg. Grave"), 
+            valor = c(weighted.mean(df_uf$seg_perc_dom_2024, 
+                df_uf$total_dom_mil_2024, na.rm = TRUE), weighted.mean(df_uf$inseg_leve_perc_dom_2024, 
+                df_uf$total_dom_mil_2024, na.rm = TRUE), weighted.mean(df_uf$inseg_moderada_perc_dom_2024, 
+                df_uf$total_dom_mil_2024, na.rm = TRUE), weighted.mean(df_uf$inseg_grave_perc_dom_2024, 
+                df_uf$total_dom_mil_2024, na.rm = TRUE)), cor = c(COR_VERDE, 
+                COR_ROXO2, COR_WARN, COR_PERIGO))
+        plotly_layout(plot_ly(cats, labels = ~label, values = ~valor, 
+            type = "pie", hole = 0.55, marker = list(colors = cats$cor, 
+                line = list(color = "white", width = 2)), textinfo = "label+percent", 
+            textfont = list(size = 10), hovertemplate = "<b>%{label}</b><br>%{value:.1f}%<extra></extra>"), 
+            showlegend = FALSE, annotations = list(list(text = "Brasil<br>2024", 
+                x = 0.5, y = 0.5, font = list(size = 13, color = COR_DARK), 
+                showarrow = FALSE)))
+    })
+    d_uf_sa <- reactive({
+        filter(df_uf, abbrev_state == input$uf_sa)
+    })
+    ano_r <- reactive({
+        input$ano_sa
+    })
+    output$donut_uf <- renderPlotly({
+        d <- d_uf_sa()
+        ano <- ano_r()
+        cats <- tibble(label = c("Com Segurança", "Inseg. Leve", 
+            "Inseg. Moderada", "Inseg. Grave"), valor = c(d[[paste0("seg_perc_dom_", 
+            ano)]], d[[paste0("inseg_leve_perc_dom_", ano)]], 
+            d[[paste0("inseg_moderada_perc_dom_", ano)]], d[[paste0("inseg_grave_perc_dom_", 
+                ano)]]), cor = c(COR_VERDE, COR_ROXO2, COR_WARN, 
+            COR_PERIGO))
+        plotly_layout(plot_ly(cats, labels = ~label, values = ~valor, 
+            type = "pie", hole = 0.55, marker = list(colors = cats$cor, 
+                line = list(color = "white", width = 2)), textinfo = "percent", 
+            textfont = list(size = 11), hovertemplate = "<b>%{label}</b><br>%{value:.1f}%<extra></extra>"), 
+            showlegend = FALSE, annotations = list(list(text = paste0(input$uf_sa, 
+                "<br>", ano), x = 0.5, y = 0.5, font = list(size = 13, 
+                color = COR_DARK), showarrow = FALSE)))
+    })
+    output$bar_dom_mor <- renderPlotly({
+        d <- d_uf_sa()
+        ano <- ano_r()
+        cats <- c("seg", "inseg_leve", "inseg_moderada", "inseg_grave")
+        labs <- c("Com Segurança", "Inseg. Leve", "Inseg. Moderada", 
+            "Inseg. Grave")
+        dom <- sapply(cats, function(c) d[[paste0(c, "_dom_mil_", 
+            ano)]] %||% NA_real_)
+        mor <- sapply(cats, function(c) d[[paste0(c, "_mor_mil_", 
+            ano)]] %||% NA_real_)
+        plotly_layout(add_trace(plot_ly(x = labs, y = dom, type = "bar", 
+            name = "Domicílios (mil)", marker = list(color = COR_ROXO), 
+            hovertemplate = "<b>%{x}</b><br>%{y:.0f} mil domicílios<extra></extra>"), 
+            y = mor, name = "Moradores (mil)", marker = list(color = COR_VERDE), 
+            hovertemplate = "<b>%{x}</b><br>%{y:.0f} mil moradores<extra></extra>"), 
+            barmode = "group", xaxis = list(title = ""), yaxis = list(title = "Mil", 
+                gridcolor = COR_GRID), legend = list(orientation = "h", 
+                y = -0.2))
+    })
+    output$bar_anos <- renderPlotly({
+        d <- d_uf_sa()
+        cats <- c("seg", "inseg_leve", "inseg_moderada", "inseg_grave")
+        labs <- c("Com Segurança", "Inseg. Leve", "Inseg. Moderada", 
+            "Inseg. Grave")
+        v23 <- sapply(cats, function(c) d[[paste0(c, "_perc_dom_2023")]] %||% 
+            NA_real_)
+        v24 <- sapply(cats, function(c) d[[paste0(c, "_perc_dom_2024")]] %||% 
+            NA_real_)
+        plotly_layout(add_trace(plot_ly(x = labs, y = v23, type = "bar", 
+            name = "2023", marker = list(color = COR_ROXO2), 
+            hovertemplate = "<b>%{x}</b><br>2023: %{y:.1f}%<extra></extra>"), 
+            y = v24, name = "2024", marker = list(color = COR_ROXO), 
+            hovertemplate = "<b>%{x}</b><br>2024: %{y:.1f}%<extra></extra>"), 
+            barmode = "group", xaxis = list(title = ""), yaxis = list(title = "% Domicílios", 
+                ticksuffix = "%", gridcolor = COR_GRID), legend = list(orientation = "h", 
+                y = -0.25))
+    })
+    output$tabela_sa <- renderDT({
+        formatStyle(formatStyle(formatRound(datatable(arrange(select(df_uf, 
+            Estado = abbrev_state, Região = name_region, `Inseg.Grave 2023 (%)` = inseg_grave_perc_dom_2023, 
+            `Inseg.Grave 2024 (%)` = inseg_grave_perc_dom_2024, 
+            `Variação (p.p.)` = delta_inseg_grave, `Inseg.Total 2024 (%)` = inseg_perc_dom_2024, 
+            `Com Segurança 2024 (%)` = seg_perc_dom_2024), desc(`Inseg.Grave 2024 (%)`)), 
+            options = list(pageLength = 10, dom = "ftp", language = list(url = "//cdn.datatables.net/plug-ins/1.10.21/i18n/Portuguese-Brasil.json")), 
+            rownames = FALSE, class = "compact hover"), 3:7, 
+            digits = 1), "Inseg.Grave 2024 (%)", background = styleColorBar(c(0, 
+            max(df_uf$inseg_grave_perc_dom_2024, na.rm = TRUE)), 
+            "#f5eefd"), backgroundSize = "100% 80%", backgroundRepeat = "no-repeat", 
+            backgroundPosition = "center"), "Variação (p.p.)", 
+            color = styleInterval(0, c(COR_VERDE, COR_PERIGO)), 
+            fontWeight = "bold")
+    })
+    output$mapa_bf_cob <- renderPlotly({
+        mapa_uf("bf_cobertura_2024", "Famílias/1.000 hab", pal_low = COR_CREME, 
+            pal_high = COR_VERDE, sufixo = "")
+    })
+    output$bar_bf_val <- renderPlotly({
+        d <- mutate(arrange(df_uf, bf_valor_2024), val_mi = bf_valor_2024/1e+06)
+        plotly_layout(plot_ly(d, y = ~reorder(abbrev_state, val_mi), 
+            x = ~val_mi, type = "bar", orientation = "h", marker = list(color = COR_VERDE, 
+                opacity = 0.85), hovertemplate = "<b>%{y}</b><br>R$ %{x:.1f} mi/mês<extra></extra>"), 
+            xaxis = list(title = "R$ Milhões (média mensal)", 
+                gridcolor = COR_GRID), yaxis = list(title = "", 
+                tickfont = list(size = 10)), showlegend = FALSE)
+    })
+    output$scatter_bf_inseg <- renderPlotly({
+        scatter_uf("bf_cobertura_2024", "inseg_grave_perc_dom_2024", 
+            "Cobertura BF (fam./1.000 hab)", "Inseg. Grave (%)", 
+            y_suf = "%")
+    })
+    output$mapa_bf_vlr <- renderPlotly({
+        mapa_uf("bf_vlr_medio_2024", "Valor médio (R$)", pal_low = COR_CREME, 
+            pal_high = COR_VERDE, sufixo = "", fmt = "R$ %.0f")
+    })
+    output$mapa_area <- renderPlotly({
+        mapa_uf("area_per_capita", "ha por habitante", pal_low = COR_CREME, 
+            pal_high = COR_VERDE2, sufixo = " ha/hab", fmt = "%.4f")
+    })
+    output$scatter_area <- renderPlotly({
+        scatter_uf("area_per_capita", "inseg_grave_perc_dom_2024", 
+            "Área plantada per capita (ha/hab)", "Inseg. Grave (%)", 
+            y_suf = "%", x_fmt = "%.4f")
+    })
+    output$bar_urb_rural <- renderPlotly({
+        d <- arrange(select(df_uf, abbrev_state, name_region, 
+            perc_urbana_uf, perc_rural_uf), perc_rural_uf)
+        plotly_layout(add_trace(plot_ly(d, x = ~reorder(abbrev_state, 
+            perc_rural_uf), y = ~perc_urbana_uf, type = "bar", 
+            name = "Urbana", marker = list(color = COR_ROXO), 
+            hovertemplate = "<b>%{x}</b><br>Urbana: %{y:.1f}%<extra></extra>"), 
+            y = ~perc_rural_uf, name = "Rural", marker = list(color = COR_VERDE), 
+            hovertemplate = "<b>%{x}</b><br>Rural: %{y:.1f}%<extra></extra>"), 
+            barmode = "stack", xaxis = list(title = "", tickfont = list(size = 10)), 
+            yaxis = list(title = "% da população", ticksuffix = "%", 
+                gridcolor = COR_GRID), legend = list(orientation = "h", 
+                y = -0.2))
+    })
+    output$mapa_rural <- renderPlotly({
+        mapa_uf("perc_rural_uf", "% Pop. Rural", pal_low = COR_CREME, 
+            pal_high = COR_VERDE, sufixo = "%")
+    })
+    output$sc_rural_inseg <- renderPlotly({
+        scatter_uf("perc_rural_uf", "inseg_grave_perc_dom_2024", 
+            "% Pop. Rural", "Inseg. Grave (%)", x_suf = "%", 
+            y_suf = "%")
+    })
+    output$sc_bf_inseg <- renderPlotly({
+        scatter_uf("bf_cobertura_2024", "inseg_grave_perc_dom_2024", 
+            "Cobertura BF (fam./1.000 hab)", "Inseg. Grave (%)", 
+            y_suf = "%")
+    })
+    output$sc_vlr_inseg <- renderPlotly({
+        scatter_uf("bf_vlr_medio_2024", "inseg_grave_perc_dom_2024", 
+            "Valor Médio BF (R$)", "Inseg. Grave (%)", y_suf = "%", 
+            x_fmt = "R$ %.0f")
+    })
+    output$sc_area_inseg <- renderPlotly({
+        scatter_uf("area_per_capita", "inseg_grave_perc_dom_2024", 
+            "Área Plantada per Capita (ha/hab)", "Inseg. Grave (%)", 
+            y_suf = "%", x_fmt = "%.4f")
+    })
+    output$tabela_full <- renderDT({
+        formatStyle(formatStyle(datatable(arrange(transmute(df_uf, 
+            Estado = abbrev_state, Região = name_region, `Pop. (mil)` = round(populacao/1000), 
+            `% Rural` = round(perc_rural_uf, 1), `Inseg.Grave 24 (%)` = round(inseg_grave_perc_dom_2024, 
+                1), `Inseg.Total 24 (%)` = round(inseg_perc_dom_2024, 
+                1), `Δ Inseg.Grave (p.p.)` = round(delta_inseg_grave, 
+                1), `BF Fam/1.000 hab` = round(bf_cobertura_2024, 
+                1), `BF Vlr.Médio (R$)` = round(bf_vlr_medio_2024), 
+            `Área/hab (ha)` = round(area_per_capita, 4)), desc(`Inseg.Grave 24 (%)`)), 
+            rownames = FALSE, class = "compact hover", options = list(pageLength = 27, 
+                dom = "ft", language = list(url = "//cdn.datatables.net/plug-ins/1.10.21/i18n/Portuguese-Brasil.json"))), 
+            "Inseg.Grave 24 (%)", background = styleColorBar(c(0, 
+                max(df_uf$inseg_grave_perc_dom_2024, na.rm = TRUE)), 
+                "#f5eefd"), backgroundSize = "100% 80%", backgroundRepeat = "no-repeat", 
+            backgroundPosition = "center"), "Δ Inseg.Grave (p.p.)", 
+            color = styleInterval(0, c(COR_VERDE, COR_PERIGO)), 
+            fontWeight = "bold")
+    })
+}, shinyApp(ui, server))
+Carregando global.R...
+ERRO ao carregar global.R: Error: Invalid Value to argument 'year/date'. It must be one of the following: 1872 1900 1911 1920 1933 1940 1950 1960 1970 1980 1991 2000 2001 2010 2013 2014 2015 2016 2017 2018 2019 2020 

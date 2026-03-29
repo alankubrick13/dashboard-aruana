@@ -1,0 +1,3 @@
+Using year/date 2022
+Mensagen de aviso:
+st_centroid assumes attributes are constant over geometries 

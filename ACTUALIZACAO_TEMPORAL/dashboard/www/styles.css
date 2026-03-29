@@ -1,0 +1,341 @@
+/* ============================================================
+   styles.css — Observatório da Fome | ONG Aruana
+   Palette: #7237cb (roxo) · #f9f7f6 (creme) · #4c734c (verde)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+* {
+    font-family: 'Inter', sans-serif !important;
+}
+
+/* ── Navbar ───────────────────────────────────────────────── */
+.navbar {
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.28);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 4px;
+}
+
+.nav-item .nav-link {
+    font-size: 0.84rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: color 0.15s ease;
+}
+
+.navbar-nav .active>.nav-link {
+    border-bottom: 2px solid #7237cb;
+    color: #fff !important;
+}
+
+/* ── Page background ──────────────────────────────────────── */
+body,
+.tab-content {
+    background: #f0ecfa !important;
+}
+
+.container-fluid {
+    padding: 1.2rem 1.5rem;
+}
+
+/* ── Cards ────────────────────────────────────────────────── */
+.card {
+    border: none !important;
+    border-radius: 14px !important;
+    box-shadow: 0 2px 14px rgba(114, 55, 203, 0.08);
+    background: #fff;
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 22px rgba(114, 55, 203, 0.14);
+}
+
+.card-header {
+    background: #fff !important;
+    border-bottom: 1.5px solid #ece8f8 !important;
+    border-radius: 14px 14px 0 0 !important;
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: #1e1e2e;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.1rem;
+}
+
+/* ── Value boxes ──────────────────────────────────────────── */
+.bslib-value-box {
+    border-radius: 14px !important;
+    border: none !important;
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.07);
+}
+
+.value-box-title {
+    font-size: 0.69rem !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    opacity: 0.88;
+}
+
+.value-box-value {
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    line-height: 1.1;
+}
+
+/* ── Custom VB colours ────────────────────────────────────── */
+.vb-roxo {
+    --bslib-color-bg: #7237cb;
+    --bslib-color-fg: #fff;
+}
+
+.vb-verde {
+    --bslib-color-bg: #4c734c;
+    --bslib-color-fg: #fff;
+}
+
+.vb-perigo {
+    --bslib-color-bg: #c0392b;
+    --bslib-color-fg: #fff;
+}
+
+.vb-warn {
+    --bslib-color-bg: #e07b3a;
+    --bslib-color-fg: #fff;
+}
+
+.vb-branco {
+    --bslib-color-bg: #fff;
+    --bslib-color-fg: #1e1e2e;
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.09) !important;
+}
+
+/* ── Selectize & Inputs ───────────────────────────────────── */
+.selectize-input {
+    border: 1.5px solid #c0a8f0 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    font-size: 0.87rem !important;
+}
+
+.selectize-input.focus {
+    border-color: #7237cb !important;
+    box-shadow: 0 0 0 3px rgba(114, 55, 203, 0.13) !important;
+}
+
+.selectize-dropdown {
+    border-radius: 8px !important;
+    border-color: #c0a8f0 !important;
+}
+
+.selectize-dropdown-content .option.active {
+    background: #ece8f8;
+    color: #7237cb;
+}
+
+/* ── Radio buttons ────────────────────────────────────────── */
+.btn-check:checked+.btn {
+    background: #7237cb;
+    border-color: #7237cb;
+    color: #fff;
+}
+
+/* ── DT tables ────────────────────────────────────────────── */
+table.dataTable thead th {
+    background: #ece8f8 !important;
+    color: #1e1e2e;
+    font-weight: 600;
+    font-size: 0.79rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+table.dataTable tbody tr:hover {
+    background: #f5f0ff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #7237cb !important;
+    color: white !important;
+    border-radius: 6px;
+    border: none;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    border: 1.5px solid #c0a8f0 !important;
+    border-radius: 6px !important;
+    padding: 3px 8px !important;
+    font-size: 0.82rem !important;
+}
+
+/* ── Dividers ─────────────────────────────────────────────── */
+hr {
+    border-color: #ede8f8;
+    margin: 0.8rem 0;
+}
+
+/* ── Footer ───────────────────────────────────────────────── */
+.rodape {
+    font-size: 0.72rem;
+    color: #999;
+    text-align: center;
+    padding: 0.6rem 0 1rem 0;
+    margin-top: 1.5rem;
+    letter-spacing: 0.015em;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ABA SOBRE
+ ════════════════════════════════════════════════════════════ */
+
+/* Hero banner */
+.sobre-hero {
+    background: linear-gradient(130deg, #1e1e2e 0%, #2d1f5e 60%, #4a2a8a 100%);
+    border-radius: 18px;
+    padding: 3rem 2rem;
+    text-align: center;
+    box-shadow: 0 6px 32px rgba(114, 55, 203, 0.22);
+}
+
+.sobre-hero-inner {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sobre-logo {
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+}
+
+.sobre-titulo {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #f9f7f6;
+    letter-spacing: -0.01em;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.sobre-subtitulo {
+    font-size: 0.92rem;
+    color: #c0b8e0;
+    line-height: 1.7;
+    max-width: 580px;
+    margin: 0;
+}
+
+/* Cards da aba Sobre */
+.sobre-card .card-header {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #7237cb;
+    border-bottom-color: #ece8f8 !important;
+}
+
+.sobre-card .card-body {
+    padding: 1.1rem;
+}
+
+/* Tabela de fontes */
+.sobre-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.sobre-table thead th {
+    background: #f5f0ff !important;
+    color: #7237cb;
+    font-weight: 600;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 2px solid #c0a8f0;
+}
+
+.sobre-table tbody td {
+    padding: 0.45rem 0.6rem;
+    border-bottom: 1px solid #f0ecfa;
+    color: #3a3a4a;
+    vertical-align: top;
+}
+
+.sobre-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.sobre-table tbody tr:hover td {
+    background: #f9f7ff;
+}
+
+/* Lista metodológica */
+.sobre-list {
+    padding-left: 1.1rem;
+    margin: 0;
+}
+
+.sobre-list li {
+    font-size: 0.83rem;
+    line-height: 1.65;
+    color: #3a3a4a;
+    margin-bottom: 0.7rem;
+}
+
+.sobre-list li b {
+    color: #1e1e2e;
+}
+
+/* Cards de estatística */
+.sobre-stat-card {
+    background: linear-gradient(135deg, #7237cb 0%, #9b6de0 100%) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 4px 18px rgba(114, 55, 203, 0.25) !important;
+}
+
+.sobre-stat-card .card-body {
+    padding: 0 !important;
+}
+
+.sobre-stat-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.6rem 1rem;
+    gap: 0.3rem;
+}
+
+.sobre-stat-num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.sobre-stat-lab {
+    font-size: 0.74rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.78);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Pequena nota informativa */
+.text-muted.small {
+    font-size: 0.79rem !important;
+    line-height: 1.6;
+    color: #888 !important;
+}
