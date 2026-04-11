@@ -33,25 +33,116 @@ with open(CSS_PATH, encoding="utf-8") as f:
 # ---------------------------------------------------------------------------
 # Cores institucionais
 # ---------------------------------------------------------------------------
-COR_PRIMARIA = "#2E5E4E"
-COR_SECUNDARIA = "#D4A84B"
-COR_LEVE = "#5B9BD5"
-COR_MODERADA = "#ED7D31"
-COR_GRAVE = "#C00000"
-COR_ALIMENTO = "#4CAF50"
-COR_COMMODITY = "#FF9800"
+# ── Sistema de Cores Semântico ──────────────────────────────────────────────
+# Cor base institucional
+COR_PRIMARIA   = "#2E5E4E"   # Verde Aruanã escuro — barra padrão única, referência
+COR_SECUNDARIA = "#D4A84B"   # Dourado/Ouro — acento institucional
+
+# Semáforo da insegurança alimentar (amarelo → laranja → vermelho)
+COR_LEVE      = "#F4C430"   # Amarelo mostarda — insegurança leve
+COR_MODERADA  = "#ED7D31"   # Laranja — insegurança moderada
+COR_GRAVE     = "#C00000"   # Vermelho — insegurança grave / alerta máximo
+
+# Classificação agrícola (dois tons claramente distintos e saturados)
+COR_ALIMENTO  = "#388E3C"   # Verde médio sólido — produção de alimentos
+COR_COMMODITY = "#1565C0"   # Azul escuro — commodities (distinto do verde)
+
+# Destaque territorial
+COR_AMAZONIA  = "#E8650A"   # Laranja vibrante — Amazônia Legal (exclusivo)
+COR_NEUTRO    = "#00897B"   # Teal médio — demais estados (visível, não conflita)
+
+# Séries históricas 2023 vs 2024 (claramente distintas entre si)
+COR_2023      = "#90A4AE"   # Azul-aço médio — dados de 2023
+COR_2024      = "#00796B"   # Teal escuro — dados de 2024
+
+# Gênero (azul royal vs rosa escuro — alto contraste)
+COR_HOMEM     = "#283593"   # Azul royal escuro — sexo masculino
+COR_MULHER    = "#C62828"   # Vermelho escuro/crimson — sexo feminino
+
+# Escalas Contínuas Customizadas
+# Começa em cor claramente visível (não branco/transparente)
+ARUANA_REDS     = ["#FFCDD2", "#E57373", "#C0392B", "#922B21", "#641E16"]
+ARUANA_GREENS   = ["#C8E6C9", "#81C784", "#388E3C", "#1B5E20", "#0A3D1F"]
+ARUANA_DIVERGENT = [COR_PRIMARIA, "#F5F5F5", COR_GRAVE]
+
+
 
 PLOTLY_LAYOUT = dict(
     template="plotly_white",
     font=dict(family="Inter, sans-serif", color="#333333"),
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    margin=dict(l=40, r=20, t=50, b=40),
+    margin=dict(l=40, r=80, t=80, b=40),
 )
+
+# Barra de ferramentas elegante: ativada, mas omitindo todos os botões que 
+# não são úteis no contexto do dashboard para não estourar o layout
+PLOTLY_CONFIG = {
+    "displayModeBar": True,
+    "displaylogo": False,
+    "modeBarButtonsToRemove": [
+        "zoom2d", "pan2d", "select2d", "lasso2d", 
+        "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d",
+        "hoverClosestCartesian", "hoverCompareCartesian"
+    ],
+    "toImageButtonOptions": {
+        "format": "png", 
+        "filename": "Aruana_Dashboard_Grafico",
+        "scale": 2
+    }
+}
 
 # Estados da Amazônia Legal
 AMAZONIA_LEGAL = {"AC", "AM", "AP", "MA", "MT", "PA", "RO", "RR", "TO"}
-COR_AMAZONIA = "#1B813E"  # verde escuro para destaque
+
+@st.cache_data
+def get_logo_base64():
+    """Converte o logo SVG para base64 para uso em gráficos Plotly."""
+    logo_path = os.path.join(os.path.dirname(__file__), "logo_aruana.svg")
+    if os.path.exists(logo_path):
+        with open(logo_path, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode()
+            return f"data:image/svg+xml;base64,{encoded}"
+    return None
+
+def apply_institutional_style(fig, watermark=True, is_map=False):
+    """Aplica marca d'água e estilo padrão aos gráficos.
+    
+    Para mapas (is_map=True), a logo vai para o canto superior esquerdo
+    para não interferir com a visualização do mapa.
+    Para gráficos comuns, a logo vai centralizada como marca d'água discreta.
+    """
+    fig.update_layout(**PLOTLY_LAYOUT)
+    if watermark:
+        logo_b64 = get_logo_base64()
+        if logo_b64:
+            if is_map:
+                # Logo no canto superior esquerdo, visível mas não obstrutiva
+                fig.add_layout_image(
+                    dict(
+                        source=logo_b64,
+                        xref="paper", yref="paper",
+                        x=0.01, y=0.99,
+                        sizex=0.12, sizey=0.12,
+                        xanchor="left", yanchor="top",
+                        opacity=0.55,
+                        layer="above"
+                    )
+                )
+            else:
+                # Logo centralizada como marca d'água discreta
+                fig.add_layout_image(
+                    dict(
+                        source=logo_b64,
+                        xref="paper", yref="paper",
+                        x=0.5, y=0.5,
+                        sizex=0.35, sizey=0.35,
+                        xanchor="center", yanchor="middle",
+                        opacity=0.07,
+                        layer="below"
+                    )
+                )
+    return fig
 
 # Área territorial por UF (km2) - Fonte: IBGE
 AREA_TERRITORIAL_UF = {
@@ -238,7 +329,7 @@ with st.sidebar:
             <img src="data:image/svg+xml;base64,{logo_b64}"
                  alt="Logo Aruanã"
                  style="width: 120px; margin-bottom: 10px;" />
-            <div class="sidebar-subtitle">Observatório de Segurança Alimentar</div>
+            <div class="sidebar-subtitle">Pesquisa de Segurança Alimentar e Abastecimento</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -472,7 +563,7 @@ def pagina_panorama():
             locations="abbrev_state",
             featureidkey="properties.sigla",
             color=inseg_col_map,
-            color_continuous_scale="Reds", # Tons de vermelho para alerta
+            color_continuous_scale=ARUANA_REDS, # Tons de vermelho para alerta
             hover_name="abbrev_state",
             hover_data={inseg_col_map: ":.1f", "abbrev_state": False},
             zoom=3.0,
@@ -482,11 +573,11 @@ def pagina_panorama():
         )
         fig_map.update_layout(**PLOTLY_LAYOUT)
         fig_map.update_layout(
-            margin=dict(l=0, r=0, t=10, b=0),
+            margin=dict(l=0, r=80, t=80, b=0),
             height=500,
             coloraxis_colorbar=dict(title="%"),
         )
-        st.plotly_chart(fig_map, use_container_width=True)
+        st.plotly_chart(apply_institutional_style(fig_map, is_map=True), use_container_width=True, config=PLOTLY_CONFIG)
         st.markdown(
             "**Nota interpretativa:** A gradação de cor indica o percentual de domicílios em situação de "
             "insegurança alimentar em 2024. Estados com tons mais escuros possuem maior prevalência."
@@ -501,9 +592,12 @@ def pagina_panorama():
     # de forma que o maior valor fique no topo listado
     sdf_sorted = sdf.sort_values(f"inseg_perc_dom_{ano}", ascending=True)
 
-    # Define marker colors to highlight Amazônia Legal in 2024
+    # Esquema de cores centralizado: usa constantes globais
+    colors_2023 = [
+        COR_2023 for _ in sdf_sorted["abbrev_state"]
+    ]
     colors_2024 = [
-        COR_AMAZONIA if uf in AMAZONIA_LEGAL else COR_PRIMARIA
+        COR_AMAZONIA if uf in AMAZONIA_LEGAL else COR_2024
         for uf in sdf_sorted["abbrev_state"]
     ]
     
@@ -513,22 +607,30 @@ def pagina_panorama():
         x=sdf_sorted["inseg_perc_dom_2023"],
         orientation="h",
         name="2023",
-        marker_color=COR_SECUNDARIA,
+        marker_color=colors_2023,
         text=sdf_sorted["inseg_perc_dom_2023"].apply(lambda x: f"{x:.1f}%"),
         textposition="outside",
-        textfont=dict(size=16, weight="bold"),
+        textfont=dict(size=14, weight="bold"),
         cliponaxis=False
     ))
     fig.add_trace(go.Bar(
         y=sdf_sorted["abbrev_state"],
         x=sdf_sorted["inseg_perc_dom_2024"],
         orientation="h",
-        name="2024",
+        name="2024 (demais estados)",
         marker_color=colors_2024,
         text=sdf_sorted["inseg_perc_dom_2024"].apply(lambda x: f"{x:.1f}%"),
         textposition="outside",
-        textfont=dict(size=16, weight="bold"),
+        textfont=dict(size=14, weight="bold"),
         cliponaxis=False
+    ))
+    # Trace fantasma apenas para gerar legenda da Amazônia Legal
+    fig.add_trace(go.Bar(
+        y=[None], x=[None],
+        name="2024 (Amazônia Legal)",
+        marker_color=COR_AMAZONIA,
+        showlegend=True,
+        orientation="h",
     ))
     fig.update_layout(
         **PLOTLY_LAYOUT,
@@ -539,7 +641,7 @@ def pagina_panorama():
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         height=1200
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(apply_institutional_style(fig), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown(
         """
@@ -547,6 +649,7 @@ def pagina_panorama():
 apresentaram variação significativa nos percentuais de insegurança alimentar domiciliar.
 Valores maiores indicam maior proporção de domicílios em situação de insegurança alimentar
 (leve, moderada ou grave). Os dados baseiam-se na PNAD Contínua e refletem estimativas estaduais.
+Os estados da **Amazônia Legal** estão destacados em laranja nas barras de 2024.
         """
     )
 
@@ -554,32 +657,55 @@ Valores maiores indicam maior proporção de domicílios em situação de insegu
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
 
     # ---------- Breakdown by severity ----------
-    st.markdown("**Composição por grau (2024)**")
+    st.markdown("### Grau de insegurança alimentar de cada estado (2024)")
     st.markdown(
         '<p style="font-size: 0.9em; color: #666;">As colunas do gráfico abaixo refletem a proporção de domicílios em insegurança alimentar no ano de 2024. '
-        'O valor agregado do gráfico anterior é apresentado aqui com cores indicando a gravidade da insegurança alimentar nos domicílios brasileiros.</p>',
+        'O valor agregado está indicado no topo de cada coluna, com cores indicando a gravidade da insegurança alimentar nos domicílios brasileiros.</p>',
         unsafe_allow_html=True
     )
+    # COR_LEVE já é amarelo mostarda (#F4C430) na constante global
     fig2 = go.Figure()
-    for col, cor, label in [
+    traces_grau = [
         (f"inseg_leve_perc_dom_{ano}", COR_LEVE, "Leve"),
         (f"inseg_moderada_perc_dom_{ano}", COR_MODERADA, "Moderada"),
         (f"inseg_grave_perc_dom_{ano}", COR_GRAVE, "Grave"),
-    ]:
+    ]
+    for col, cor, label in traces_grau:
         if col in sdf.columns:
             fig2.add_trace(go.Bar(
-                x=sdf["abbrev_state"], y=sdf[col], name=label, marker_color=cor,
+                x=sdf["abbrev_state"],
+                y=sdf[col],
+                name=label,
+                marker_color=cor,
+                hovertemplate="<b>%{x}</b><br>" + label + ": %{y:.1f}%<extra></extra>",
             ))
+    # Calcular o total por UF para rótulo agregado no topo das colunas
+    cols_grau = [c for c, _, _ in traces_grau if c in sdf.columns]
+    sdf_grau = sdf[["abbrev_state"] + cols_grau].copy()
+    sdf_grau["total_inseg"] = sdf_grau[cols_grau].sum(axis=1)
+    # Trace invisível apenas para exibir o total agregado no topo
+    fig2.add_trace(go.Bar(
+        x=sdf_grau["abbrev_state"],
+        y=[0] * len(sdf_grau),
+        text=sdf_grau["total_inseg"].apply(lambda v: f"{v:.1f}%"),
+        textposition="outside",
+        textfont=dict(size=11, color="#444444", weight="bold"),
+        marker_color="rgba(0,0,0,0)",
+        showlegend=False,
+        hoverinfo="skip",
+        cliponaxis=False,
+    ))
     fig2.update_layout(
         **PLOTLY_LAYOUT,
         barmode="stack",
         xaxis_title="UF",
-        yaxis_title="% domicílios",
+        yaxis_title="% de domicílios em cada nível",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        height=450,
-        xaxis=dict(tickangle=0) # Corrigir rotação das siglas (deixar horizontal como os demais)
+        height=480,
+        xaxis=dict(tickangle=0),
+        yaxis=dict(ticksuffix="%"),
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(apply_institutional_style(fig2), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown(
         """
@@ -596,37 +722,55 @@ Valores maiores indicam maior proporção de domicílios em situação de insegu
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
 
     # ---------- Correlation: Rural Pop vs Insecurity ----------
-    st.markdown(f"### Perfil Rural vs Insegurança ({ano})")
+    st.markdown(f"### Relação entre proporção de população rural do estado e Insegurança Alimentar e Nutricional ({ano})")
+    st.markdown(
+        "O gráfico de dispersão abaixo revela uma tendência de correlação positiva entre o percentual de população "
+        "rural e a insegurança alimentar nos estados brasileiros em 2024. Ou seja, quanto maior a parcela da população "
+        "do estado que mora em área rural, tende a ser maior a parcela que se encontra sem acesso constante e seguro "
+        "a uma alimentação saudável e variada."
+    )
     agg_rural = filtered_df.groupby("abbrev_state").agg(
         pop_total=("populacao", "sum"),
         pop_rural=("pop_rural", "sum"),
         inseg_ref=(f"inseg_perc_dom_{ano}", "first")
     ).reset_index()
     agg_rural["perc_rural"] = (agg_rural["pop_rural"] / agg_rural["pop_total"]) * 100
+    agg_rural["amazonia_legal"] = agg_rural["abbrev_state"].apply(
+        lambda x: "Amazônia Legal" if x in AMAZONIA_LEGAL else "Demais estados"
+    )
 
     fig_scatter_pop = px.scatter(
-        agg_rural, 
-        x="inseg_ref", 
+        agg_rural,
+        x="inseg_ref",
         y="perc_rural",
         text="abbrev_state",
-        color_discrete_sequence=[COR_PRIMARIA],
+        color="amazonia_legal",
+        color_discrete_map={
+            "Amazônia Legal": COR_AMAZONIA,
+            "Demais estados": COR_PRIMARIA,
+        },
         labels={
             "perc_rural": "% População Rural",
             "inseg_ref": "Insegurança Alimentar (%)",
-            "abbrev_state": "UF"
+            "abbrev_state": "UF",
+            "amazonia_legal": ""
         }
     )
-    fig_scatter_pop.update_traces(textposition="top center", marker=dict(size=10))
+    fig_scatter_pop.update_traces(
+        textposition="top center",
+        marker=dict(size=11),
+        selector=dict(mode="markers+text")
+    )
     fig_scatter_pop.update_layout(
         **PLOTLY_LAYOUT,
-        height=450,
+        height=490,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
-    st.plotly_chart(fig_scatter_pop, use_container_width=True)
+    st.plotly_chart(apply_institutional_style(fig_scatter_pop), use_container_width=True, config=PLOTLY_CONFIG)
     st.markdown(
-        "**Nota interpretativa:** O gráfico de dispersão revela uma tendência de correlação positiva entre o percentual "
-        "de população rural e a insegurança alimentar. Estados localizados no quadrante superior direito possuem maior "
-        "ruralidade e maiores índices de insegurança alimentar, sugerindo que a vulnerabilidade alimentar é mais "
-        "acentuada em contextos rurais no território brasileiro."
+        "**Nota interpretativa:** Os estados mais à direita e mais altos no gráfico superior direito possuem, respectivamente, "
+        "maiores índices de insegurança alimentar e maiores taxas de população rural, indicando que a vulnerabilidade alimentar "
+        "é mais acentuada em contextos rurais no território brasileiro. Em laranja, destacamos os estados da Amazônia Legal brasileira."
     )
 
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
@@ -645,96 +789,85 @@ Valores maiores indicam maior proporção de domicílios em situação de insegu
     if len(grupo_urbano) > 0 and len(grupo_rural) > 0:
         t_stat, p_valor = stats.ttest_ind(grupo_urbano, grupo_rural, equal_var=False)
         
-        col_stats_left, col_stats_right = st.columns([2, 1])
-        
-        with col_stats_left:
-            sub1, sub2 = st.columns(2)
-            sub1.metric("Média de insegurança alimentar (Estados mais urbanos)", f"{grupo_urbano.mean():.1f}%")
-            sub2.metric("Média de insegurança alimentar (Estados mais rurais)", f"{grupo_rural.mean():.1f}%")
-            
-            st.markdown(
-                f"""
-                <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 5px solid {COR_PRIMARIA};">
-                    <strong>Nota explicativa:</strong> Os estados foram divididos em dois grupos com base na mediana da população rural ({mediana_rural:.1f}%). 
-                    Foram comparados {len(grupo_urbano)} estados abaixo da mediana e {len(grupo_rural)} estados acima. 
-                    Em termos práticos, o resultado mostra uma associação estatística entre maior ruralidade e maior insegurança alimentar.
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+        # Nota explicativa acima dos quadros
+        st.markdown(
+            f"""
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; border-left: 5px solid {COR_PRIMARIA}; margin-bottom: 1rem;">
+                <strong>Nota explicativa:</strong> os estados foram divididos em dois grupos com base na mediana da população rural ({mediana_rural:.1f}%). 
+                Os dados comparam os {len(grupo_rural)} estados que possuem maior parcela de população rural com os {len(grupo_urbano)} estados com maior percentual de população urbana. 
+                A diferença nos níveis de segurança alimentar e nutricional entre eles é estatisticamente significativa, indicando que não se deve ao acaso.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        sub1, sub2 = st.columns(2)
+        sub1.metric("Média de insegurança alimentar (Estados mais urbanos)", f"{grupo_urbano.mean():.1f}%")
+        sub2.metric("Média de insegurança alimentar (Estados mais rurais)", f"{grupo_rural.mean():.1f}%")
 
-        with col_stats_right:
-            st.markdown("#### Resultado da comparação")
-            if p_valor < 0.05:
-                st.success("A diferença observada entre os dois grupos é estatisticamente significativa.")
-                st.markdown("Isso indica que existe efetivamente uma maior insegurança alimentar nos estados mais rurais.")
-            else:
-                st.warning("A diferença não atingiu significância estatística (p > 0.05).")
+        # --- NOVOS GRÁFICOS: VARIAÇÃO E MAGNITUDE ---
+        st.markdown("### Dinâmica e Escala da Insegurança Alimentar")
+
+        st.markdown("#### Variação do Índice de Segurança Alimentar e Nutricional (2023 → 2024)")
+        st.markdown(
+            "Estados com barra em vermelho tiveram aumento nas taxas de insegurança alimentar e nutricional. "
+            "Ou seja, mais famílias passaram a viver sem a garantia do acesso a alimentação saudável e variada. "
+            "Sergipe foi o estado que teve maiores taxas de melhora entre 2023 e 2024, com mais de 14% da sua população "
+            "alcançando a segurança alimentar e nutricional nos dados mais recentes."
+        )
+        sdf["variacao"] = sdf["inseg_perc_dom_2024"] - sdf["inseg_perc_dom_2023"]
+        sdf_var = sdf.sort_values("variacao", ascending=True)
+
+        fig_var = px.bar(
+            sdf_var, x="variacao", y="abbrev_state",
+            orientation="h",
+            color="variacao",
+            color_continuous_scale=[COR_PRIMARIA, "#f9f9f9", COR_GRAVE],
+            color_continuous_midpoint=0,
+            labels={"variacao": "Diferença (p.p.)", "abbrev_state": "UF"}
+        )
+        fig_var.update_layout(**PLOTLY_LAYOUT, height=600, showlegend=False)
+        st.plotly_chart(apply_institutional_style(fig_var), use_container_width=True, config=PLOTLY_CONFIG)
+
+        st.markdown("#### Insegurança Alimentar: Escala e Concentração Regional")
+        st.markdown(
+            "O Sudeste concentra cerca de 1,5x a população do Nordeste, mas apresenta níveis consideravelmente "
+            "menores de insegurança alimentar. Isso revela que o problema não é apenas de escala populacional, "
+            "mas de distribuição desigual das condições de acesso e renda no território nacional."
+        )
+        agg_magnitude = filtered_df.groupby("name_region").agg({
+            "populacao": "sum",
+            f"inseg_perc_dom_{ano}": "mean"
+        }).reset_index()
+
+        fig_tree = px.treemap(
+            agg_magnitude, path=["name_region"], values="populacao",
+            color=f"inseg_perc_dom_{ano}",
+            color_continuous_scale=ARUANA_REDS,
+            labels={f"inseg_perc_dom_{ano}": "Insegurança (%)", "populacao": "População Total", "name_region": "Região"}
+        )
+        fig_tree.update_layout(**PLOTLY_LAYOUT, height=500)
+        st.plotly_chart(apply_institutional_style(fig_tree), use_container_width=True, config=PLOTLY_CONFIG)
+        st.markdown(
+            """
+            <div class="interpretative-note">
+                <strong>Leitura:</strong> O tamanho de cada bloco representa a população total da região.
+                A cor indica a intensidade média da insegurança alimentar. Regiões com blocos maiores e cores
+                mais escuras concentram simultaneamente mais pessoas e maiores taxas de vulnerabilidade.
+            </div>
+            """, unsafe_allow_html=True
+        )
+
+        st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
+
+        st.markdown(
+            "É importante compreender que habitar espaços rurais não é a causa da insegurança alimentar dessa população, "
+            "mas reflete dinâmicas sociais e climáticas que essa pesquisa busca evidenciar."
+        )
     else:
         st.warning("Não há dados suficientes ou variação de perfis (Urbano/Rural) para realizar o teste t.")
 
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
 
-    # --- NOVOS GRÁFICOS: VARIAÇÃO E MAGNITUDE ---
-    st.markdown("### Dinâmica e Escala da Insegurança Alimentar")
-    
-    c_extra1, c_extra2 = st.columns(2)
-    
-    with c_extra1:
-        st.markdown("#### Variação do Índice (2023 → 2024)")
-        sdf["variacao"] = sdf["inseg_perc_dom_2024"] - sdf["inseg_perc_dom_2023"]
-        sdf_var = sdf.sort_values("variacao", ascending=True)
-        
-        fig_var = px.bar(
-            sdf_var, x="variacao", y="abbrev_state",
-            orientation="h",
-            color="variacao",
-            color_continuous_scale=["#2E5E4E", "#f9f9f9", "#C00000"], # Verde para melhora, Vermelho para piora
-            color_continuous_midpoint=0,
-            labels={"variacao": "Diferença (p.p.)", "abbrev_state": "UF"}
-        )
-        fig_var.update_layout(**PLOTLY_LAYOUT, height=500, showlegend=False)
-        st.plotly_chart(fig_var, use_container_width=True)
-        
-        st.markdown(
-            """
-            <div class="interpretative-note">
-                <strong>Nota interpretativa:</strong> Este gráfico mostra a velocidade da mudança. Barras à esquerda (verdes) indicam estados que conseguiram reduzir a insegurança alimentar em pontos percentuais. Barras à direita (vermelhas) sinalizam onde o problema se agravou no último ano, demandando atenção prioritária.
-            </div>
-            """, unsafe_allow_html=True
-        )
-
-    with c_extra2:
-        st.markdown("#### Concentração Regional da Insegurança")
-        # Ponderar a insegurança pela população para mostrar magnitude
-        agg_magnitude = filtered_df.groupby("name_region").agg({
-            "populacao": "sum",
-            f"inseg_perc_dom_{ano}": "mean"
-        }).reset_index()
-        
-        fig_tree = px.treemap(
-            agg_magnitude, path=["name_region"], values="populacao",
-            color=f"inseg_perc_dom_{ano}",
-            color_continuous_scale="Reds",
-            labels={f"inseg_perc_dom_{ano}": "Insegurança (%)", "populacao": "População Total", "name_region": "Região"}
-        )
-        fig_tree.update_layout(**PLOTLY_LAYOUT, height=500)
-        st.plotly_chart(fig_tree, use_container_width=True)
-        
-        st.markdown(
-            """
-            <div class="interpretative-note">
-                <strong>Nota interpretativa:</strong> O tamanho dos blocos representa a população total de cada região, enquanto a cor indica a intensidade da insegurança alimentar. Isso permite identificar onde o desafio é maior não apenas em percentual, mas em número absoluto de cidadãos potencialmente afetados.
-            </div>
-            """, unsafe_allow_html=True
-        )
-
-    st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
-
-
-# -------------------------------------------------------------------------
-# 3. Produção Agrícola
-# -------------------------------------------------------------------------
 def pagina_producao():
     ano = st.session_state.filtro_ano
     st.markdown("# Produção Agrícola")
@@ -755,7 +888,19 @@ def pagina_producao():
     
     # ---------- Map: Agricultural Production relative area ----------
     st.markdown("### Mapa de Produção Agrícola por Estado")
-    st.markdown("Cores mais escuras apontam estados que dedicam as maiores parcelas de seu território à produção agrícola.")
+    st.markdown(
+        "No gráfico abaixo, cores mais escuras apontam estados que dedicam as maiores parcelas de seu território "
+        "à produção agrícola. "
+        "Neste relatório, encontramos que a porcentagem de população rural tem relação com maiores índices de insegurança alimentar. "
+        "O caso do Paraná é emblemático: o estado possui 11% da população rural mas 57% de suas terras voltadas para a produção agrícola. "
+        "Adicionalmente, não figura entre os mais críticos no mapa de insegurança alimentar. "
+        "Situação semelhante, ainda que em menor grau, também pode ser observada no Mato Grosso do Sul, com 12% de população rural e "
+        "20% do território voltado à produção agrícola. Esses estados combinam o peso relevante da atividade agrária com "
+        "indicadores menos graves do que os observados em parte da região da Amazônia Legal. "
+        "A vulnerabilidade alimentar se agrava menos pela ruralidade em si do que pela combinação entre ruralidade, baixa renda, "
+        "maior presença de chefia feminina e negra/parda, fragilidades de abastecimento e menor capacidade de transformar "
+        "produção local em acesso regular a alimentos saudáveis."
+    )
     
     map_data_agri = agg.dropna(subset=["lat", "lon"]).copy()
     # Calcular proporção relativa à área do estado
@@ -770,8 +915,8 @@ def pagina_producao():
             featureidkey="properties.sigla",
             color="perc_territorio_agri",
             hover_name="abbrev_state",
-            hover_data={"populacao": True, "perc_territorio_agri": ":.1f%", "abbrev_state": False},
-            color_continuous_scale="Greens",
+            hover_data={"populacao": True, "perc_territorio_agri": ":.1f", "abbrev_state": False},
+            color_continuous_scale=ARUANA_GREENS,
             zoom=3.0,
             center={"lat": -15.78, "lon": -47.92},
             mapbox_style="carto-positron",
@@ -782,11 +927,11 @@ def pagina_producao():
         )
         fig_map_agri.update_layout(**PLOTLY_LAYOUT)
         fig_map_agri.update_layout(
-            margin=dict(l=0, r=0, t=40, b=0),
+            margin=dict(l=0, r=80, t=80, b=0),
             height=550,
             coloraxis_colorbar=dict(title="%"),
         )
-        st.plotly_chart(fig_map_agri, use_container_width=True)
+        st.plotly_chart(apply_institutional_style(fig_map_agri, is_map=True), use_container_width=True, config=PLOTLY_CONFIG)
     else:
         st.info("Municípios insuficientes com dados geográficos ou agrícolas para mapas.")
 
@@ -802,32 +947,47 @@ def pagina_producao():
         unsafe_allow_html=True
     )
     
+    # Gráfico 1: por Região (totais agregados, sem rótulos sobrepostos)
+    agg_region = agg.groupby("name_region", as_index=False).agg(
+        area_plantada_ha=("area_plantada_ha", "sum")
+    ).sort_values("area_plantada_ha", ascending=False)
+
     fig_region = px.bar(
-        agg.sort_values(["name_region", "area_plantada_ha"], ascending=[True, False]),
+        agg_region,
         x="name_region", y="area_plantada_ha",
         color="name_region",
-        text="abbrev_state",
-        labels={"name_region": "Região", "area_plantada_ha": "Área Plantada (ha)", "abbrev_state": "UF"},
-        color_discrete_sequence=px.colors.qualitative.Prism
+        text=agg_region["area_plantada_ha"].apply(lambda v: f"{v/1e6:.1f}M ha"),
+        labels={"name_region": "Região", "area_plantada_ha": "Área Plantada (ha)"},
+        color_discrete_sequence=ARUANA_GREENS
     )
-    fig_region.update_layout(**PLOTLY_LAYOUT, height=500, showlegend=False)
-    fig_region.update_traces(textposition="outside")
-    st.plotly_chart(fig_region, use_container_width=True)
+    fig_region.update_layout(**PLOTLY_LAYOUT, height=420, showlegend=False)
+    fig_region.update_traces(textposition="outside", cliponaxis=False)
+    st.plotly_chart(apply_institutional_style(fig_region), use_container_width=True, config=PLOTLY_CONFIG)
+
+    st.markdown(
+        "Parte importante dos estados com maior área plantada está fortemente ligada a uma produção agrícola de grande escala, "
+        "muitas vezes voltada a commodities, o que não garante, por si só, melhor oferta local de alimentos para consumo das famílias."
+    )
 
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
 
-    # Bar: planted area by state
+    # Gráfico 2: por UF (barras individuais, coloridas por região)
+    agg_uf_sorted = agg.sort_values("area_plantada_ha", ascending=False)
     fig = px.bar(
-        agg, x="abbrev_state", y="area_plantada_ha",
-        color_discrete_sequence=[COR_PRIMARIA],
-        labels={"abbrev_state": "UF", "area_plantada_ha": "Área plantada (ha)"},
+        agg_uf_sorted, x="abbrev_state", y="area_plantada_ha",
+        color="name_region",
+        text=agg_uf_sorted["area_plantada_ha"].apply(lambda v: f"{v/1e6:.1f}M"),
+        labels={"abbrev_state": "UF", "area_plantada_ha": "Área plantada (ha)", "name_region": "Região"},
+        color_discrete_sequence=ARUANA_GREENS,
     )
     fig.update_layout(
         **PLOTLY_LAYOUT,
         title="Área plantada por UF (hectares)",
-        height=450,
+        height=500,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
-    st.plotly_chart(fig, use_container_width=True)
+    fig.update_traces(textposition="outside", cliponaxis=False)
+    st.plotly_chart(apply_institutional_style(fig), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
 
@@ -900,11 +1060,25 @@ def pagina_producao():
         fig_stack = go.Figure()
         fig_stack.add_trace(go.Bar(
             x=agg_uf_class["abbrev_state"], y=agg_uf_class["alimento"],
-            name="Alimento", marker_color=COR_PRIMARIA,
+            name="Alimento", marker_color=COR_ALIMENTO,
+            hovertemplate="<b>%{x}</b><br>Alimento: %{y:,.0f} ha<extra></extra>",
         ))
         fig_stack.add_trace(go.Bar(
             x=agg_uf_class["abbrev_state"], y=agg_uf_class["commodity"],
-            name="Commodity", marker_color=COR_GRAVE,
+            name="Commodity", marker_color=COR_COMMODITY,
+            hovertemplate="<b>%{x}</b><br>Commodity: %{y:,.0f} ha<extra></extra>",
+        ))
+        # Rótulo agregado no topo de cada coluna (total ha em milhões com 1 decimal)
+        fig_stack.add_trace(go.Bar(
+            x=agg_uf_class["abbrev_state"],
+            y=[0] * len(agg_uf_class),
+            text=agg_uf_class["total"].apply(lambda v: f"{v/1e6:.1f}M ha"),
+            textposition="outside",
+            textfont=dict(size=10, color="#444444", weight="bold"),
+            marker_color="rgba(0,0,0,0)",
+            showlegend=False,
+            hoverinfo="skip",
+            cliponaxis=False,
         ))
         fig_stack.update_layout(
             **PLOTLY_LAYOUT,
@@ -915,7 +1089,7 @@ def pagina_producao():
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
             height=480,
         )
-        st.plotly_chart(fig_stack, use_container_width=True)
+        st.plotly_chart(apply_institutional_style(fig_stack), use_container_width=True, config=PLOTLY_CONFIG)
         
         st.markdown(
             "**Análise:** Estados com grande peso na produção agrícola, como Mato Grosso, Paraná e Rio Grande do Sul, concentram parcelas expressivas da área plantada e, "
@@ -950,8 +1124,9 @@ def pagina_producao():
                     total_cat = prod_table.groupby("categoria")["area_ha"].transform("sum")
                     prod_table["percentual_categoria"] = (prod_table["area_ha"] / total_cat) * 100
                     
-                    # Formatar colunas
-                    prod_table["Área plantada (em milhões de hectares)"] = prod_table["area_ha"].apply(lambda x: f"{x/1e6:.2f}")
+                    # Formatar colunas — ordenar por valor numérico antes de formatar
+                    prod_table = prod_table.sort_values("area_ha", ascending=False)
+                    prod_table["Área plantada (em milhões de hectares)"] = prod_table["area_ha"].apply(lambda x: f"{x/1e6:.1f}")
                     prod_table["Participação na categoria (%)"] = prod_table["percentual_categoria"].apply(lambda x: f"{x:.1f}%")
                     
                     st.dataframe(
@@ -967,10 +1142,10 @@ def pagina_producao():
                     st.markdown("#### Top 10 Alimentos")
                     top_alim = prod_ano[prod_ano["categoria"] == "alimento"].groupby("produto").agg(
                         area_total=("area_ha", "sum")
-                    ).reset_index().nlargest(10, "area_total")
+                    ).reset_index().nlargest(10, "area_total").sort_values("area_total", ascending=False)
                     if not top_alim.empty:
                         top_alim["area_fmt"] = top_alim["area_total"].apply(
-                            lambda x: f"{x/1e6:,.2f} mi ha".replace(",", "X").replace(".", ",").replace("X", ".")
+                            lambda x: f"{x/1e6:,.1f} mi ha".replace(",", "X").replace(".", ",").replace("X", ".")
                         )
                         st.dataframe(
                             top_alim[["produto", "area_fmt"]].rename(
@@ -983,10 +1158,10 @@ def pagina_producao():
                     st.markdown("#### Top 10 Commodities")
                     top_comm = prod_ano[prod_ano["categoria"] == "commodity"].groupby("produto").agg(
                         area_total=("area_ha", "sum")
-                    ).reset_index().nlargest(10, "area_total")
+                    ).reset_index().nlargest(10, "area_total").sort_values("area_total", ascending=False)
                     if not top_comm.empty:
                         top_comm["area_fmt"] = top_comm["area_total"].apply(
-                            lambda x: f"{x/1e6:,.2f} mi ha".replace(",", "X").replace(".", ",").replace("X", ".")
+                            lambda x: f"{x/1e6:,.1f} mi ha".replace(",", "X").replace(".", ",").replace("X", ".")
                         )
                         st.dataframe(
                             top_comm[["produto", "area_fmt"]].rename(
@@ -1017,7 +1192,7 @@ def pagina_producao():
         color="amazonia_legal",
         color_discrete_map={
             "Amazônia Legal": COR_AMAZONIA,
-            "Demais estados": "#607D8B", # Cor mais neutra para destaque da Amazônia
+            "Demais estados": COR_NEUTRO,
         },
         labels={
             inseg_col_scat: "Domicílios em insegurança alimentar (%)",
@@ -1032,7 +1207,7 @@ def pagina_producao():
         height=500,
         legend=dict(orientation="h", yanchor="bottom", y=1.01, xanchor="right", x=1)
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(apply_institutional_style(fig2), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown(
         "**Análise:** Os dados mostram que produção agrícola e segurança alimentar não caminham necessariamente juntas. "
@@ -1070,14 +1245,14 @@ def pagina_producao():
                 color=col_map_alim,
                 hover_name="abbrev_state",
                 hover_data={col_map_alim: ":,.0f", "abbrev_state": False},
-                color_continuous_scale="YlGn",
+                color_continuous_scale=ARUANA_GREENS,
                 zoom=3, center={"lat": -15.78, "lon": -47.92},
                 mapbox_style="carto-positron",
                 labels={col_map_alim: "Área Alimento (ha)", "abbrev_state": "UF"}
             )
             fig_map_alim.update_layout(**PLOTLY_LAYOUT)
-            fig_map_alim.update_layout(margin=dict(l=0, r=0, t=10, b=0), height=550)
-            st.plotly_chart(fig_map_alim, use_container_width=True)
+            fig_map_alim.update_layout(margin=dict(l=0, r=80, t=80, b=0), height=550)
+            st.plotly_chart(apply_institutional_style(fig_map_alim, is_map=True), use_container_width=True, config=PLOTLY_CONFIG)
     else:
         # Visão por Município
         if BR_MUN_GEOJSON is None:
@@ -1087,15 +1262,15 @@ def pagina_producao():
             if not map_df_alim.empty:
                 fig_map_alim = px.scatter_mapbox(
                     map_df_alim, lat="lat", lon="lon", color=col_map_alim, size=col_map_alim,
-                    size_max=15, color_continuous_scale="YlGn",
+                    size_max=15, color_continuous_scale=ARUANA_GREENS,
                     hover_name="name_muni",
                     hover_data={"abbrev_state": True, col_map_alim: ":,.0f"},
                     zoom=3, center={"lat": -15.78, "lon": -47.92}, mapbox_style="carto-positron",
                     labels={col_map_alim: "Área Alimento (ha)", "abbrev_state": "UF"}
                 )
                 fig_map_alim.update_layout(**PLOTLY_LAYOUT)
-                fig_map_alim.update_layout(margin=dict(l=0, r=0, t=10, b=0), height=550)
-                st.plotly_chart(fig_map_alim, use_container_width=True)
+                fig_map_alim.update_layout(margin=dict(l=0, r=80, t=80, b=0), height=550)
+                st.plotly_chart(apply_institutional_style(fig_map_alim, is_map=True), use_container_width=True, config=PLOTLY_CONFIG)
         else:
             # Choropleth Municipal
             map_df_alim = filtered_df.dropna(subset=[col_map_alim]).copy()
@@ -1112,14 +1287,14 @@ def pagina_producao():
                 color=col_map_alim,
                 hover_name="name_muni",
                 hover_data={"abbrev_state": True, col_map_alim: ":,.0f", "code_muni_str": False},
-                color_continuous_scale="YlGn",
+                color_continuous_scale=ARUANA_GREENS,
                 zoom=3, center={"lat": -15.78, "lon": -47.92},
                 mapbox_style="carto-positron",
                 labels={col_map_alim: "Área Alimento (ha)", "abbrev_state": "UF"}
             )
             fig_map_alim.update_layout(**PLOTLY_LAYOUT)
-            fig_map_alim.update_layout(margin=dict(l=0, r=0, t=10, b=0), height=550)
-            st.plotly_chart(fig_map_alim, use_container_width=True)
+            fig_map_alim.update_layout(margin=dict(l=0, r=80, t=80, b=0), height=550)
+            st.plotly_chart(apply_institutional_style(fig_map_alim, is_map=True), use_container_width=True, config=PLOTLY_CONFIG)
     
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
     
@@ -1135,25 +1310,26 @@ def pagina_producao():
     sdf_perc = state_summary(filtered_df, ano)
     sdf_perc = sdf_perc.sort_values(col_perc_alim, ascending=False)
     
-    colors_alim = [COR_AMAZONIA if uf in AMAZONIA_LEGAL else COR_ALIMENTO for uf in sdf_perc["abbrev_state"]]
+    # Amazônia Legal em COR_AMAZONIA (laranja), demais em COR_PRIMARIA (verde Aruanã)
+    colors_alim = [COR_AMAZONIA if uf in AMAZONIA_LEGAL else COR_PRIMARIA for uf in sdf_perc["abbrev_state"]]
     
     fig_perc_alim = px.bar(
         sdf_perc, x=col_perc_alim, y="abbrev_state",
         orientation="h",
         text=sdf_perc[col_perc_alim].apply(lambda x: f"{x:.1f}%"),
-        color_discrete_sequence=[COR_ALIMENTO],
+        color_discrete_sequence=[COR_PRIMARIA],
         labels={col_perc_alim: "% Área destinada a Alimentos", "abbrev_state": "UF"}
     )
     fig_perc_alim.update_traces(marker_color=colors_alim, textposition="outside")
     fig_perc_alim.update_layout(
         **PLOTLY_LAYOUT,
-        xaxis=dict(range=[0, 110]), # Para caber o label
+        xaxis=dict(range=[0, 110]),
         height=600
     )
-    st.plotly_chart(fig_perc_alim, use_container_width=True)
+    st.plotly_chart(apply_institutional_style(fig_perc_alim), use_container_width=True, config=PLOTLY_CONFIG)
     
     st.markdown(
-        "**Análise:** Os estados da Amazônia Legal (em verde) apresentam, em geral, uma composição mais equilibrada ou majoritariamente voltada a alimentos, "
+        "**Análise:** Os estados da Amazônia Legal (em laranja) apresentam, em geral, uma composição mais equilibrada ou majoritariamente voltada a alimentos, "
         "em comparação aos grandes polos do agronegócio exportador. Isso reforça o papel estratégico dessas regiões para a soberania alimentar local, "
         "apesar dos desafios logísticos e ambientais."
     )
@@ -1170,22 +1346,8 @@ def pagina_producao():
 
     col_div = f"n_produtos_alimento_{ano}"
     inseg_col_div = f"inseg_perc_dom_{ano}"
-    
-    fig_div_scat = px.scatter(
-        filtered_df, x=col_div, y=inseg_col_div,
-        color="abbrev_state",
-        labels={col_div: "Nº de variedades produzidas", inseg_col_div: "Insegurança alimentar (%)", "abbrev_state": "UF"},
-        opacity=0.6
-    )
-    fig_div_scat.update_layout(**PLOTLY_LAYOUT, height=450, showlegend=True)
-    st.plotly_chart(fig_div_scat, use_container_width=True)
 
-    st.markdown(
-        "**Correlação:** À medida que a diversidade de produtos alimentares aumenta, observa-se uma tendência de redução nos níveis médios "
-        "de insegurança alimentar nos municípios. Municípios com alta diversidade (mais de 10 variedades) raramente apresentam taxas extremas de fome."
-    )
-
-    # State average diversity bar
+    # State average diversity bar (somente o gráfico de médias, mais informativo)
     st.markdown("#### Média de diversidade agrícola por estado")
     div_state = filtered_df.groupby("abbrev_state")[col_div].mean().sort_values(ascending=False).reset_index()
     
@@ -1197,40 +1359,13 @@ def pagina_producao():
     )
     fig_div_bar.update_traces(textposition="outside")
     fig_div_bar.update_layout(**PLOTLY_LAYOUT, height=400, yaxis=dict(range=[0, div_state[col_div].max() * 1.2]))
-    st.plotly_chart(fig_div_bar, use_container_width=True)
+    st.plotly_chart(apply_institutional_style(fig_div_bar), use_container_width=True, config=PLOTLY_CONFIG)
 
-    st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
-
-    # Seção de Evolução 2023 → 2024
-    st.markdown("### Evolução da Área Plantada: 2023 → 2024")
-    if all(c in filtered_df.columns for c in ["area_ha_alimento_2023", "area_ha_commodity_2023", "area_ha_alimento_2024", "area_ha_commodity_2024"]):
-        evol = pd.DataFrame({
-            "Categoria": ["Alimentos", "Commodities", "Alimentos", "Commodities"],
-            "Ano": ["2023", "2023", "2024", "2024"],
-            "Área (ha)": [
-                filtered_df["area_ha_alimento_2023"].sum(), filtered_df["area_ha_commodity_2023"].sum(),
-                filtered_df["area_ha_alimento_2024"].sum(), filtered_df["area_ha_commodity_2024"].sum(),
-            ],
-        })
-        
-        # Cores solicitadas: Verde (COR_PRIMARIA) e Vermelho (COR_GRAVE)
-        fig_evol = px.bar(evol, x="Ano", y="Área (ha)", color="Categoria", barmode="group",
-                           color_discrete_map={"Alimentos": COR_PRIMARIA, "Commodities": COR_GRAVE})
-        fig_evol.update_layout(**PLOTLY_LAYOUT, height=500,
-                               legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-        st.plotly_chart(fig_evol, use_container_width=True)
-        
-        st.markdown(
-            """
-            <div class="interpretative-note">
-                <strong>Nota interpretativa:</strong> A comparação entre 2023 e 2024 revela a dinâmica de uso do solo no país. 
-                A variação nas barras indica se houve expansão da fronteira agrícola ou substituição de culturas. 
-                Manter o equilíbrio entre o crescimento das commodities e a preservação das áreas de alimentos é fundamental para estabilizar os preços internos e garantir a segurança alimentar da população.
-            </div>
-            """, unsafe_allow_html=True
-        )
-    else:
-        st.info("Séries históricas comparativas para 2023/24 não encontradas.")
+    st.markdown(
+        "**Nota interpretativa:** À medida que a diversidade de produtos alimentares aumenta, observa-se uma tendência "
+        "de redução nos níveis médios de insegurança alimentar nos municípios. Municípios com alta diversidade "
+        "(mais de 10 variedades) raramente apresentam taxas extremas de insegurança alimentar grave."
+    )
 
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
 
@@ -1290,8 +1425,6 @@ def pagina_bolsa_familia():
     # --- SEÇÃO DE MAPAS ---
     st.markdown("### Análise Territorial: Investimento e Necessidade")
     
-    c_map1, c_map2 = st.columns(2)
-    
     state_agg_bf = filtered_df.groupby("abbrev_state").agg({
         col_valor: "sum",
         col_familias: "sum",
@@ -1301,71 +1434,75 @@ def pagina_bolsa_familia():
     
     state_agg_bf["cobertura"] = (state_agg_bf[col_familias] / state_agg_bf["total_dom_resp"]) * 100
 
-    with c_map1:
-        st.markdown("#### Cobertura do Programa por Estado")
-        fig_map_cov = px.choropleth_mapbox(
-            state_agg_bf, geojson=BR_STATES_GEOJSON, locations="abbrev_state", featureidkey="properties.sigla",
-            color="cobertura", color_continuous_scale="Blues",
-            zoom=2.5, center={"lat": -15.78, "lon": -47.92}, mapbox_style="carto-positron"
-        )
-        fig_map_cov.update_layout(**PLOTLY_LAYOUT)
-        fig_map_cov.update_layout(margin=dict(l=0, r=0, t=0, b=0), height=400)
-        st.plotly_chart(fig_map_cov, use_container_width=True)
-        st.markdown(
-            """
-            <div class="interpretative-note">
-                <strong>Nota interpretativa:</strong> Tons mais escuros indicam estados onde o Bolsa Família chega a uma fatia maior da população. 
-                Isso geralmente ocorre em regiões onde o mercado de trabalho formal é menos dinâmico.
-            </div>
-            """, unsafe_allow_html=True
-        )
+    st.markdown("#### Cobertura do Programa por Estado")
+    st.markdown(
+        """
+        <div class="interpretative-note">
+            <strong>Nota interpretativa:</strong> Tons mais escuros indicam estados onde o Bolsa Família chega a uma fatia maior da população. 
+            Isso geralmente ocorre em regiões onde o mercado de trabalho formal é menos dinâmico.
+        </div>
+        """, unsafe_allow_html=True
+    )
+    fig_map_cov = px.choropleth_mapbox(
+        state_agg_bf, geojson=BR_STATES_GEOJSON, locations="abbrev_state", featureidkey="properties.sigla",
+        color="cobertura", color_continuous_scale=ARUANA_GREENS,
+        zoom=3.0, center={"lat": -15.78, "lon": -47.92}, mapbox_style="carto-positron"
+    )
+    fig_map_cov.update_layout(**PLOTLY_LAYOUT)
+    fig_map_cov.update_layout(margin=dict(l=0, r=80, t=80, b=0), height=500)
+    st.plotly_chart(apply_institutional_style(fig_map_cov, is_map=True), use_container_width=True, config=PLOTLY_CONFIG)
 
-    with c_map2:
-        st.markdown("#### Insegurança Alimentar Grave (Fome)")
-        fig_map_fome = px.choropleth_mapbox(
-            state_agg_bf, geojson=BR_STATES_GEOJSON, locations="abbrev_state", featureidkey="properties.sigla",
-            color=inseg_grave_col, color_continuous_scale="Reds",
-            zoom=2.5, center={"lat": -15.78, "lon": -47.92}, mapbox_style="carto-positron"
-        )
-        fig_map_fome.update_layout(**PLOTLY_LAYOUT)
-        fig_map_fome.update_layout(margin=dict(l=0, r=0, t=0, b=0), height=400)
-        st.plotly_chart(fig_map_fome, use_container_width=True)
-        st.markdown(
-            """
-            <div class="interpretative-note">
-                <strong>Nota interpretativa:</strong> Este mapa identifica as áreas de maior urgência. Ao comparar com o mapa ao lado, é possível verificar se o programa está conseguindo cobrir as áreas onde a fome é mais prevalente.
-            </div>
-            """, unsafe_allow_html=True
-        )
+    st.markdown("#### Insegurança Alimentar Grave")
+    st.markdown(
+        """
+        <div class="interpretative-note">
+            <strong>Nota interpretativa:</strong> Este mapa identifica as áreas de maior urgência. Ao comparar com o mapa acima, é possível verificar se o programa está conseguindo cobrir as áreas onde a insegurança alimentar grave é mais prevalente.
+        </div>
+        """, unsafe_allow_html=True
+    )
+    fig_map_fome = px.choropleth_mapbox(
+        state_agg_bf, geojson=BR_STATES_GEOJSON, locations="abbrev_state", featureidkey="properties.sigla",
+        color=inseg_grave_col, color_continuous_scale=ARUANA_REDS,
+        zoom=3.0, center={"lat": -15.78, "lon": -47.92}, mapbox_style="carto-positron"
+    )
+    fig_map_fome.update_layout(**PLOTLY_LAYOUT)
+    fig_map_fome.update_layout(margin=dict(l=0, r=80, t=80, b=0), height=500)
+    st.plotly_chart(apply_institutional_style(fig_map_fome, is_map=True), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
 
     # --- SEÇÃO DE CORRELAÇÃO ---
     st.markdown("### Relação entre Transferência de Renda e Segurança Alimentar")
-    
+    st.markdown(
+        """
+        <div class="interpretative-note">
+            <strong>Nota interpretativa:</strong> O gráfico mostra que existe uma forte ligação entre a cobertura do programa e a necessidade social. 
+            A linha de tendência ascendente confirma que o Bolsa Família está concentrado exatamente onde a insegurança alimentar grave é maior. Isso valida a <strong>focalização do programa</strong>: o recurso está chegando aos territórios que mais precisam de suporte para garantir a alimentação básica.
+        </div>
+        """, unsafe_allow_html=True
+    )
     fig_corr = px.scatter(
         state_agg_bf, x="cobertura", y=inseg_grave_col,
         text="abbrev_state", trendline="ols",
-        labels={"cobertura": "Cobertura do Bolsa Família (%)", inseg_grave_col: "Fome - Insegurança Grave (%)"},
+        labels={"cobertura": "Cobertura do Bolsa Família (%)", inseg_grave_col: "Inseg. Alimentar Grave (%)"},
         color_discrete_sequence=[COR_PRIMARIA]
     )
     fig_corr.update_traces(textposition="top center", marker=dict(size=12))
     fig_corr.update_layout(**PLOTLY_LAYOUT, height=500)
-    st.plotly_chart(fig_corr, use_container_width=True)
-    
-    st.markdown(
-        f"""
-        <div class="interpretative-note">
-            <strong>Nota interpretativa:</strong> O gráfico mostra que existe uma forte ligação entre a cobertura do programa e a necessidade social. 
-            A linha de tendência ascendente confirma que o Bolsa Família está concentrado exatamente onde a fome é maior. Isso valida a <strong>focalização do programa</strong>: o recurso está chegando aos territórios que mais precisam de suporte para garantir a alimentação básica.
-        </div>
-        """, unsafe_allow_html=True
-    )
+    st.plotly_chart(apply_institutional_style(fig_corr), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
 
-    # --- RANKING DE PRIORIDADE ---
     st.markdown("### Ranking de Dependência e Necessidade por Estado")
+    st.markdown(
+        """
+        <div class="interpretative-note">
+            <strong>Nota interpretativa:</strong> Este ranking combina a cobertura do programa com o índice de insegurança alimentar grave. 
+            Estados no topo da lista possuem o maior nexo de dependência: neles, o Bolsa Família é o principal pilar que evita um agravamento ainda maior da insegurança alimentar. 
+            São territórios onde qualquer interrupção no fluxo de pagamentos teria efeitos imediatos e severos na saúde nutricional da população.
+        </div>
+        """, unsafe_allow_html=True
+    )
     
     state_agg_bf["indice_prioridade"] = (state_agg_bf["cobertura"] + state_agg_bf[inseg_grave_col]) / 2
     state_agg_bf = state_agg_bf.sort_values("indice_prioridade", ascending=True)
@@ -1373,21 +1510,11 @@ def pagina_bolsa_familia():
     fig_rank = px.bar(
         state_agg_bf, x="indice_prioridade", y="abbrev_state",
         orientation="h",
-        color="indice_prioridade", color_continuous_scale="Reds",
+        color="indice_prioridade", color_continuous_scale=ARUANA_REDS,
         labels={"indice_prioridade": "Índice de Necessidade Combinada", "abbrev_state": "Estado"}
     )
     fig_rank.update_layout(**PLOTLY_LAYOUT, height=600, showlegend=False)
-    st.plotly_chart(fig_rank, use_container_width=True)
-    
-    st.markdown(
-        """
-        <div class="interpretative-note">
-            <strong>Nota interpretativa:</strong> Este ranking combina a cobertura do programa com o índice de fome. 
-            Estados no topo da lista possuem o maior nexo de dependência: neles, o Bolsa Família é o principal pilar que evita um agravamento ainda maior da insegurança alimentar. 
-            São territórios onde qualquer interrupção no fluxo de pagamentos teria efeitos imediatos e severos na saúde nutricional da população.
-        </div>
-        """, unsafe_allow_html=True
-    )
+    st.plotly_chart(apply_institutional_style(fig_rank), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
 
@@ -1433,6 +1560,14 @@ def pagina_genero_raca():
 
     # --- SEÇÃO 1: PERFIL E RENDIMENTOS ---
     st.markdown("### Perfil Sociodemográfico e Econômico")
+    st.markdown(
+        "Segundo o IBGE, a chefia do lar corresponde à pessoa reconhecida como responsável pelo domicílio, "
+        "isto é, aquela tomada como principal referência na organização e manutenção da casa. À luz dessa definição, "
+        "os dados mostram um ponto central: no Brasil, somados, os lares chefiados por pessoas pretas e pardas são mais "
+        "numerosos do que os chefiados por pessoas brancas. Além disso, entre pretos e pardos, a chefia domiciliar feminina "
+        "aparece em volume muito próximo à masculina, o que indica que as mulheres negras ocupam, em larga escala, a "
+        "posição de responsáveis diretas pelo sustento e pela condução cotidiana de seus domicílios."
+    )
     c1, c2 = st.columns(2)
 
     with c1:
@@ -1445,14 +1580,17 @@ def pagina_genero_raca():
             dom_data["sexo"] = dom_data["perfil"].apply(lambda x: "Mulheres" if "_m_" in x else "Homens")
             dom_data["raca"] = dom_data["perfil"].apply(lambda x: x.split("_")[-1].capitalize())
             
+            dom_data["total_milhoes"] = dom_data["total"] / 1_000_000
             fig_dom = px.bar(
-                dom_data, x="raca", y="total", color="sexo",
+                dom_data, x="raca", y="total_milhoes", color="sexo",
                 barmode="group",
-                labels={"raca": "Cor ou Raça", "total": "Nº de Domicílios", "sexo": "Sexo"},
-                color_discrete_map={"Homens": "#5C6BC0", "Mulheres": "#AB47BC"}
+                text=dom_data["total_milhoes"].apply(lambda v: f"{v:.1f}"),
+                labels={"raca": "Cor ou Raça", "total_milhoes": "(em milhões)", "sexo": "Sexo"},
+                color_discrete_map={"Homens": COR_HOMEM, "Mulheres": COR_MULHER}
             )
-            fig_dom.update_layout(**PLOTLY_LAYOUT, height=400)
-            st.plotly_chart(fig_dom, use_container_width=True)
+            fig_dom.update_traces(textposition="outside", cliponaxis=False)
+            fig_dom.update_layout(**PLOTLY_LAYOUT, height=420, yaxis_title="(em milhões)")
+            st.plotly_chart(apply_institutional_style(fig_dom), use_container_width=True, config=PLOTLY_CONFIG)
 
     with c2:
         st.markdown("#### Rendimento Médio do Trabalho (PNAD 2022)")
@@ -1468,66 +1606,80 @@ def pagina_genero_raca():
             fig_rend = px.bar(
                 rend_agg, x="raca", y="valor", color="sexo",
                 barmode="group",
+                text=rend_agg["valor"].apply(lambda v: f"{v:,.0f}".replace(",", ".")),
                 labels={"raca": "Cor ou Raça", "valor": "Rendimento Médio (R$)", "sexo": "Sexo"},
-                color_discrete_map={"Homens": "#5C6BC0", "Mulheres": "#AB47BC"}
+                color_discrete_map={"Homens": COR_HOMEM, "Mulheres": COR_MULHER}
             )
-            fig_rend.update_layout(**PLOTLY_LAYOUT, height=400)
-            st.plotly_chart(fig_rend, use_container_width=True)
+            fig_rend.update_traces(textposition="outside", cliponaxis=False)
+            fig_rend.update_layout(**PLOTLY_LAYOUT, height=420)
+            st.plotly_chart(apply_institutional_style(fig_rend), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown(
-        f"""
-**Análise Técnica:**
-A observação dos dados aponta para disparidades estruturais significativas. Enquanto o Censo 2022 registra uma diversidade na composição da chefia domiciliar, os dados de rendimento (PNAD 2022) 
-evidenciam uma profunda desigualdade na distribuição de recursos. Grupos historicamente marginalizados, notadamente mulheres pretas e pardas, apresentam os menores índices de rendimento 
-nominal médio, o que constitui um determinante central na prevalência da vulnerabilidade alimentar nessas populações.
-        """
+        "Quando olhamos para os dados de rendimento médio do trabalho, isto é, o salário médio recebido pelo trabalho, "
+        "a desigualdade fica ainda mais evidente. A hierarquia observada é clara: homens brancos têm os maiores rendimentos, "
+        "seguidos por mulheres brancas, homens pardos, homens pretos, mulheres pardas e, por fim, mulheres pretas, que aparecem "
+        "na base da distribuição. Em outras palavras, justamente dois dos grupos que mais aparecem na chefia dos domicílios estão "
+        "também entre os que recebem os menores salários médios. Essa combinação entre alta responsabilidade doméstica e baixa "
+        "remuneração afeta diretamente a capacidade de famílias chefiadas por mulheres negras de acessar alimentação saudável e "
+        "variada de forma contínua, já que reduz a margem de orçamento para comprar alimentos mais nutritivos, diversificados e "
+        "de melhor qualidade, tornando essas famílias mais expostas à insegurança alimentar."
     )
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
 
     # --- SEÇÃO 2: DISTRIBUIÇÃO TERRITORIAL (MAPAS AGREGADOS POR UF) ---
     st.markdown("### Distribuição Territorial da Vulnerabilidade")
-    st.markdown("Acompanhamento da concentração de perfis demográficos com maior exposição a riscos socioeconômicos (médias estaduais).")
+    st.markdown(
+        "**Nota interpretativa sobre territorialidade:** A distribuição da chefia domiciliar no Brasil não é homogênea "
+        "e revela uma geografia social da vulnerabilidade. No mapa de chefia feminina, percentuais mais elevados aparecem "
+        "com mais força em estados como Amapá, Pernambuco, Alagoas, Bahia, Pará e Amazonas. Já o mapa da chefia negra "
+        "ou parda mostra concentração especialmente intensa em estados do Norte e do Nordeste, como Amazonas, Pará, Amapá, "
+        "Maranhão, Piauí, Ceará, Bahia e também Tocantins. Quando esses padrões são comparados ao mapa de insegurança "
+        "alimentar por UF, observa-se uma convergência importante: vários desses mesmos estados também figuram entre os "
+        "que apresentam maiores percentuais de domicílios em insegurança alimentar, com destaque para Amazonas, Pará, "
+        "Maranhão, Piauí, Ceará, Alagoas e Bahia. Isso sugere que a fome no Brasil não se distribui aleatoriamente no "
+        "território, mas tende a se sobrepor a contextos em que desigualdades raciais, de gênero e de renda já estão "
+        "mais enraizadas."
+    )
 
-    cm1, cm2 = st.columns(2)
     state_agg_vuln = filtered_df.groupby("abbrev_state").agg({
         "perc_chefe_mulher": "mean",
         "perc_chefe_negro": "mean",
         "total_dom_resp": "sum"
     }).reset_index()
 
-    with cm1:
-        st.markdown("#### % Domicílios com Chefia Feminina")
-        fig_map_mulher = px.choropleth_mapbox(
-            state_agg_vuln, geojson=BR_STATES_GEOJSON, locations="abbrev_state", featureidkey="properties.sigla",
-            color="perc_chefe_mulher", color_continuous_scale="Purples",
-            hover_name="abbrev_state", hover_data={"perc_chefe_mulher": ":.1f%", "total_dom_resp": ":,.0f", "abbrev_state": False},
-            zoom=3, center={"lat": -15.78, "lon": -47.92}, mapbox_style="carto-positron",
-            labels={"perc_chefe_mulher": "Chefia Feminina (%)"}
-        )
-        fig_map_mulher.update_layout(**PLOTLY_LAYOUT)
-        fig_map_mulher.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=500)
-        st.plotly_chart(fig_map_mulher, use_container_width=True)
+    st.markdown("#### % Domicílios com Chefia Feminina")
+    fig_map_mulher = px.choropleth_mapbox(
+        state_agg_vuln, geojson=BR_STATES_GEOJSON, locations="abbrev_state", featureidkey="properties.sigla",
+        color="perc_chefe_mulher", color_continuous_scale="Purples",
+        hover_name="abbrev_state", hover_data={"perc_chefe_mulher": ":.1f%", "total_dom_resp": ":,.0f", "abbrev_state": False},
+        zoom=3.5, center={"lat": -15.78, "lon": -47.92}, mapbox_style="carto-positron",
+        labels={"perc_chefe_mulher": "Chefia Feminina (%)"}
+    )
+    fig_map_mulher.update_layout(**PLOTLY_LAYOUT)
+    fig_map_mulher.update_layout(margin=dict(l=0, r=80, t=80, b=0), height=600)
+    st.plotly_chart(apply_institutional_style(fig_map_mulher, is_map=True), use_container_width=True, config=PLOTLY_CONFIG)
 
-    with cm2:
-        st.markdown("#### % Domicílios com Chefia Negra ou Parda")
-        fig_map_negro = px.choropleth_mapbox(
-            state_agg_vuln, geojson=BR_STATES_GEOJSON, locations="abbrev_state", featureidkey="properties.sigla",
-            color="perc_chefe_negro", color_continuous_scale="Oranges",
-            hover_name="abbrev_state", hover_data={"perc_chefe_negro": ":.1f%", "total_dom_resp": ":,.0f", "abbrev_state": False},
-            zoom=3, center={"lat": -15.78, "lon": -47.92}, mapbox_style="carto-positron",
-            labels={"perc_chefe_negro": "Chefia Negra/Parda (%)"}
-        )
-        fig_map_negro.update_layout(**PLOTLY_LAYOUT)
-        fig_map_negro.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=500)
-        st.plotly_chart(fig_map_negro, use_container_width=True)
+    st.markdown("#### % Domicílios com Chefia Negra (Preta ou Parda)")
+    fig_map_negro = px.choropleth_mapbox(
+        state_agg_vuln, geojson=BR_STATES_GEOJSON, locations="abbrev_state", featureidkey="properties.sigla",
+        color="perc_chefe_negro", color_continuous_scale="Oranges",
+        hover_name="abbrev_state", hover_data={"perc_chefe_negro": ":.1f%", "total_dom_resp": ":,.0f", "abbrev_state": False},
+        zoom=3.5, center={"lat": -15.78, "lon": -47.92}, mapbox_style="carto-positron",
+        labels={"perc_chefe_negro": "Chefia Negra (Preta ou Parda) (%)"}
+    )
+    fig_map_negro.update_layout(**PLOTLY_LAYOUT)
+    fig_map_negro.update_layout(margin=dict(l=0, r=80, t=80, b=0), height=600)
+    st.plotly_chart(apply_institutional_style(fig_map_negro, is_map=True), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown(
-        """
-**Nota Interpretativa sobre Territorialidade:**
-A distribuição dos perfis de chefia domiciliar não se apresenta de forma homogênea no território nacional. Observa-se maior concentração de chefia por pessoas pretas e pardas em regiões 
-em estados com indicadores históricos de desigualdade. A sobreposição dessa geografia com as áreas de maior insegurança alimentar sugere que o fenômeno da fome no Brasil 
-possui componentes territoriais e demográficos indissociáveis.
-        """
+        "Em termos substantivos, a leitura combinada dos mapas indica que a vulnerabilidade alimentar se intensifica em "
+        "estados onde há maior concentração de domicílios chefiados por mulheres e por pessoas negras ou pardas, sobretudo "
+        "no Norte e no Nordeste. Essa convergência é particularmente visível em estados como Amazonas, Pará, Maranhão, "
+        "Piauí, Ceará, Bahia e Alagoas, onde os indicadores caminham na mesma direção. Isso não significa que a chefia "
+        "feminina ou negra produza, por si só, insegurança alimentar, mas sim que esses grupos estão mais frequentemente "
+        "inseridos em contextos historicamente marcados por menor renda, maior precariedade e acesso mais desigual a recursos "
+        "e políticas públicas. Por isso, o cruzamento entre os mapas reforça que o enfrentamento da insegurança alimentar "
+        "precisa ser territorializado e sensível às desigualdades raciais, de gênero e regionais."
     )
 
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
@@ -1544,7 +1696,7 @@ possui componentes territoriais e demográficos indissociáveis.
                               color_discrete_sequence=[COR_PRIMARIA], trendline="ols")
         fig_corr.update_traces(textposition="top center", marker=dict(size=12))
         fig_corr.update_layout(**PLOTLY_LAYOUT, height=450)
-        st.plotly_chart(fig_corr, use_container_width=True)
+        st.plotly_chart(apply_institutional_style(fig_corr), use_container_width=True, config=PLOTLY_CONFIG)
 
     with c_corr2:
         st.markdown("#### Chefia Negra/Parda vs Insegurança Grave (Fome)")
@@ -1554,7 +1706,7 @@ possui componentes territoriais e demográficos indissociáveis.
                                 color_discrete_sequence=[COR_GRAVE], trendline="ols")
         fig_corr_r.update_traces(textposition="top center", marker=dict(size=12))
         fig_corr_r.update_layout(**PLOTLY_LAYOUT, height=450)
-        st.plotly_chart(fig_corr_r, use_container_width=True)
+        st.plotly_chart(apply_institutional_style(fig_corr_r), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown(
         f"""
@@ -1583,7 +1735,10 @@ def pagina_clima():
     )
     st.markdown(
         "Esta seção integra dados do **AdaptaBrasil (MCTI/INPE)** para identificar municípios onde o risco climático — "
-        "como escassez hídrica, estresse hídrico e desastres geo-hidrológicos — agrava a insegurança alimentar persistente."
+        "como escassez híDrica, estresse hídrico e desastres geo-hidrológicos — agrava a insegurança alimentar persistente. "
+        "O indicador de risco climático utilizado é um escore adimensional calculado pelo MCTI/INPE com base em dados históricos "
+        "e projeções climáticas, variando de 0 a 1, sendo os valores mais próximos de 1 os de maior risco. "
+        "Quanto mais alto o escore de um município, maior a probabilidade de que eventos climáticos afetem sua produção e abastecimento alimentar."
     )
 
     filtered_df = get_filtered_data()
@@ -1662,14 +1817,14 @@ def pagina_clima():
                         color=color_col,
                         color_continuous_scale=colorscale,
                         hover_name=hover_name_col,
-                        hover_data={color_col: ":.2f", inseg_grave_col: ":.1f%", "abbrev_state": False},
+                        hover_data={color_col: ":.1f", inseg_grave_col: ":.1f", "abbrev_state": False},
                         zoom=3, center={"lat": -15.78, "lon": -47.92},
                         mapbox_style="carto-positron"
                     )
 
                 fig_map.update_layout(**PLOTLY_LAYOUT)
-                fig_map.update_layout(margin=dict(l=0, r=0, t=30, b=0), height=500)
-                st.plotly_chart(fig_map, use_container_width=True)
+                fig_map.update_layout(margin=dict(l=0, r=80, t=80, b=0), height=500)
+                st.plotly_chart(apply_institutional_style(fig_map, is_map=True), use_container_width=True, config=PLOTLY_CONFIG)
 
                 st.markdown(
                     f'''
@@ -1694,15 +1849,17 @@ def pagina_clima():
                     hole=0.5,
                     color="Risco",
                     color_discrete_map={
-                        "Baixo": "#A5D6A7", "Médio": "#FFF59D", 
-                        "Alto": "#FFCC80", "Muito Alto": "#EF9A9A",
-                        "Crítico": "#B71C1C"
+                        "Baixo":     COR_PRIMARIA,    # Verde Aruanã — sem risco
+                        "Médio":     COR_LEVE,        # Amarelo — atenção
+                        "Alto":      COR_MODERADA,    # Laranja — alerta
+                        "Muito Alto": COR_GRAVE,      # Vermelho — urgente
+                        "Crítico":   "#7B0000",       # Vermelho muito escuro — crítico
                     },
                     category_orders={"Risco": ["Baixo", "Médio", "Alto", "Muito Alto", "Crítico"]}
                 )
                 fig_donut.update_layout(**PLOTLY_LAYOUT)
-                fig_donut.update_layout(height=400, margin=dict(t=30, b=30, l=0, r=0))
-                st.plotly_chart(fig_donut, use_container_width=True)
+                fig_donut.update_layout(height=400, margin=dict(t=80, b=30, l=0, r=80))
+                st.plotly_chart(apply_institutional_style(fig_donut), use_container_width=True, config=PLOTLY_CONFIG)
                 
                 st.markdown(
                     f"""
@@ -1730,8 +1887,8 @@ def pagina_clima():
                                      annotation_text="Média Nacional", annotation_position="top right")
                 
                 fig_reg_bar.update_layout(**PLOTLY_LAYOUT)
-                fig_reg_bar.update_layout(height=400, margin=dict(t=30, b=30, l=0, r=0))
-                st.plotly_chart(fig_reg_bar, use_container_width=True)
+                fig_reg_bar.update_layout(height=400, margin=dict(t=80, b=30, l=0, r=80))
+                st.plotly_chart(apply_institutional_style(fig_reg_bar), use_container_width=True, config=PLOTLY_CONFIG)
                 
                 st.markdown(
                     f"""
@@ -1750,41 +1907,41 @@ def pagina_clima():
                     df_top = df_top.iloc[::-1]
                     fig_chart = px.bar(
                         df_top, x=col_name, y="name_muni", orientation='h',
-                        color=inseg_grave_col, color_continuous_scale="Reds",
-                        labels={col_name: "Índice de Risco Climático", "name_muni": "", inseg_grave_col: "Fome (%)"},
-                        text_auto='.2f',
+                        color=inseg_grave_col, color_continuous_scale=ARUANA_REDS,
+                        labels={col_name: "Índice de Risco Climático", "name_muni": "", inseg_grave_col: "Inseg. Alimentar Grave (%)"},
+                        text_auto='.1f',
                         title="Top 15 Municípios de Maior Risco Climático"
                     )
                     fig_chart.update_layout(**PLOTLY_LAYOUT, height=600)
-                    st.plotly_chart(fig_chart, use_container_width=True)
+                    st.plotly_chart(apply_institutional_style(fig_chart), use_container_width=True, config=PLOTLY_CONFIG)
 
                 elif agregacao == "Unidade da Federação":
                     df_top = df_agg.sort_values(by=col_name, ascending=False)
                     df_top = df_top.iloc[::-1]
                     fig_chart = px.bar(
                         df_top, x=col_name, y="abbrev_state", orientation='h',
-                        color=inseg_grave_col, color_continuous_scale="Reds",
-                        labels={col_name: "Média de Risco", "abbrev_state": "", inseg_grave_col: "Fome Média (%)"},
-                        text_auto='.2f',
+                        color=inseg_grave_col, color_continuous_scale=ARUANA_REDS,
+                        labels={col_name: "Média de Risco", "abbrev_state": "", inseg_grave_col: "Inseg. Alimentar Grave (%)"},
+                        text_auto='.1f',
                         title="Ranking Estadual de Risco Climático"
                     )
                     fig_chart.update_layout(**PLOTLY_LAYOUT, height=700)
-                    st.plotly_chart(fig_chart, use_container_width=True)
+                    st.plotly_chart(apply_institutional_style(fig_chart), use_container_width=True, config=PLOTLY_CONFIG)
 
                 else:
                     d_chart = pd.DataFrame({
                         "Macrorregião": df_reg["Regiao"].tolist() + df_reg["Regiao"].tolist(),
                         "Valor": df_reg[inseg_grave_col].tolist() + (df_reg[col_name] * 100).tolist(),
-                        "Indicador": ["Fome (%)"] * len(df_reg) + ["Risco Climático (*100)"] * len(df_reg)
+                        "Indicador": ["Inseg. Alimentar Grave (%)"] * len(df_reg) + ["Risco Climático (*100)"] * len(df_reg)
                     })
                     fig_chart = px.bar(
                         d_chart, x="Macrorregião", y="Valor", color="Indicador", barmode="group",
-                        color_discrete_map={"Fome (%)": COR_GRAVE, "Risco Climático (*100)": COR_PRIMARIA},
+                        color_discrete_map={"Inseg. Alimentar Grave (%)": COR_GRAVE, "Risco Climático (*100)": COR_PRIMARIA},
                         text_auto='.1f'
                     )
                     fig_chart.update_layout(**PLOTLY_LAYOUT, height=450,
                                             legend=dict(title="", orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
-                    st.plotly_chart(fig_chart, use_container_width=True)
+                    st.plotly_chart(apply_institutional_style(fig_chart), use_container_width=True, config=PLOTLY_CONFIG)
 
                 st.markdown(
                     f'''
@@ -1810,7 +1967,7 @@ def pagina_clima():
     with tabs[1]:
         render_mapa_aba(
             "recursos-hidricos/00002_risco-de-estresse-hidrico_2020_presente.csv", 
-            "indice_estresse", "Risco de Estresse Hídrico", "Reds", agregacao_geo,
+            "indice_estresse", "Risco de Estresse Hídrico", ARUANA_REDS, agregacao_geo,
             "Diferente da escassez prolongada, o Estresse Hídrico mede a densidade da competição imediata por água superficial e subterrânea. Territórios afetados sinalizam locais onde a rápida expansão urbana ou o consumo massivo por certas indústrias agravam diretamente a disponibilidade hídrica para a agricultura de pequena escala, um vetor crítico da soberania alimentar.",
             "O mapeamento destaca os territórios que demandam revisão urgente nos marcos de regulação do uso conjunto de bacias hidrológicas. O avanço imediato de políticas de proteção é mandatório para resguardar o acesso à água pelas matrizes de agricultura familiar perante o avanço da demanda urbana e agroindustrial."
         )
@@ -1834,7 +1991,7 @@ def pagina_clima():
     with tabs[4]:
         render_mapa_aba(
             "recursos-hidricos/00007_capacidade-adaptativa_2020_presente.csv", 
-            "indice_cap_adaptativa", "Capacidade Adaptativa", "Greens", agregacao_geo,
+            "indice_cap_adaptativa", "Capacidade Adaptativa", ARUANA_GREENS, agregacao_geo,
             "Este indicador elenca os 'colchões' socioeconômicos e de infraestrutura tangível (engenharia rural e rede de suporte) para absorver choques climáticos. Municípios com Capacidade Adaptativa muito baixa em contraste a alta Insegurança Alimentar representam as zonas zero do país: domínios sem amortecedores de longo prazo contra eventos climáticos severos.",
             "As jurisdições listadas denunciam grande ausência elementar de uma arquitetura sociogovernamental resiliente. Seu isolamento logístico e técnico carece fundamentalmente de articulação macrorregional executiva que incorpore linhas de saneamento contínuo, fomento e extensão rural para consolidação humana a longo prazo."
         )
@@ -1861,14 +2018,15 @@ processadas para permitir a comparabilidade entre diferentes dimensões da vulne
 - **Políticas Públicas:** Microdados e transferências do Programa Bolsa Família (Ministério do Desenvolvimento e Assistência Social, Família e Combate à Fome).
 - **Riscos Climáticos:** Indicadores de ameaça e vulnerabilidade do portal AdaptaBrasil (MCTI/INPE).
 
-### 2. Processamento e Glossário
-- **ICV (Índice de Vulnerabilidade Composta):** Média aritmética da proporção de domicílios com chefia feminina e chefia negra/parda por estado.
-- **IVFG (Índice de Vulnerabilidade à Fome por Gênero):** Produto entre a porcentagem de chefia feminina e o índice de insegurança alimentar grave, normalizado para identificar zonas de sobreposição crítica.
-- **Alimento vs Commodity:** Classificação binária baseada na aptidão para compor a Cesta Básica de Alimentos, distinguindo produção para consumo humano direto de culturas de uso industrial ou exportação.
-
-### 3. Limitações e Sigilo
+### 2. Processamento e Métricas Principais
+- **Insegurança Alimentar (Escala EBIA):** Agregação das faixas de insegurança *leve*, *moderada* e *grave*, refletindo a ausência de acesso regular a alimentos em qualidade e quantidade adequadas.
+- **Categorização Agrícola (Alimento vs Commodity):** Filtro binário com base na aptidão dos cultivos para compor a Cesta Básica de Alimentos, distinguindo a produção voltada para o mercado interno (ex: mandioca, arroz, feijão) das culturas primariamente industriais ou de exportação (ex: soja, cana-de-açúcar).
+- **Proporção de Cobertura Social (Bolsa Família):** Métrica que relaciona o número de famílias beneficiárias do programa com o número total de responsáveis pelo domicílio na Unidade da Federação, indicando o alcance territorial da rede de proteção sociorreferenciada.
+- **Chefia Domiciliar (Gênero e Raça):** Identificação baseada na pessoa reconhecida como responsável financeiro ou de referência no lar (Censo 2022). O monitoramento desses dados no painel busca evidenciar como determinantes sociais atuam como marcadores estruturais da geografia alimentar.
+- **Índices de Risco Climático:** Classificações padronizadas pelo AdaptaBrasil, dispostas em escala de "Baixo" a "Crítico", que estimam a exposição, sensibilidade e capacidade de adaptação dos territórios frente a eventos extremos (secas e inundações).
+### 3. Limitações e LGPD
 - Os dados de insegurança alimentar são representativos em nível estadual; as aplicações municipais seguem o perfil da Unidade da Federação correspondente.
-- Toda a estrutura de dados respeita o sigilo estatístico, utilizando agregados que impedem a identificação individual.
+- Toda a estrutura de dados respeita as diretrizes da Lei Geral de Proteção de Dados, utilizando valores agregados que impedem a identificação individual.
 </div>
         """,
         unsafe_allow_html=True,
