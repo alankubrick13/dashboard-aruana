@@ -75,18 +75,17 @@ PLOTLY_LAYOUT = dict(
     margin=dict(l=40, r=80, t=80, b=40),
 )
 
-# Barra de ferramentas elegante: ativada, mas omitindo todos os botões que 
-# não são úteis no contexto do dashboard para não estourar o layout
+# Barra de ferramentas: ativada, mantendo botão de download da câmera
 PLOTLY_CONFIG = {
     "displayModeBar": True,
     "displaylogo": False,
     "modeBarButtonsToRemove": [
-        "zoom2d", "pan2d", "select2d", "lasso2d", 
+        "zoom2d", "pan2d", "select2d", "lasso2d",
         "zoomIn2d", "zoomOut2d", "autoScale2d", "resetScale2d",
         "hoverClosestCartesian", "hoverCompareCartesian"
     ],
     "toImageButtonOptions": {
-        "format": "png", 
+        "format": "png",
         "filename": "Aruana_Dashboard_Grafico",
         "scale": 2
     }
@@ -976,7 +975,6 @@ def pagina_producao():
     fig = px.bar(
         agg_uf_sorted, x="abbrev_state", y="area_plantada_ha",
         color="name_region",
-        text=agg_uf_sorted["area_plantada_ha"].apply(lambda v: f"{v/1e6:.1f}M"),
         labels={"abbrev_state": "UF", "area_plantada_ha": "Área plantada (ha)", "name_region": "Região"},
         color_discrete_sequence=ARUANA_GREENS,
     )
@@ -986,7 +984,6 @@ def pagina_producao():
         height=500,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
-    fig.update_traces(textposition="outside", cliponaxis=False)
     st.plotly_chart(apply_institutional_style(fig), use_container_width=True, config=PLOTLY_CONFIG)
 
     st.markdown('<hr class="hr-institutional">', unsafe_allow_html=True)
@@ -1068,18 +1065,7 @@ def pagina_producao():
             name="Commodity", marker_color=COR_COMMODITY,
             hovertemplate="<b>%{x}</b><br>Commodity: %{y:,.0f} ha<extra></extra>",
         ))
-        # Rótulo agregado no topo de cada coluna (total ha em milhões com 1 decimal)
-        fig_stack.add_trace(go.Bar(
-            x=agg_uf_class["abbrev_state"],
-            y=[0] * len(agg_uf_class),
-            text=agg_uf_class["total"].apply(lambda v: f"{v/1e6:.1f}M ha"),
-            textposition="outside",
-            textfont=dict(size=10, color="#444444", weight="bold"),
-            marker_color="rgba(0,0,0,0)",
-            showlegend=False,
-            hoverinfo="skip",
-            cliponaxis=False,
-        ))
+
         fig_stack.update_layout(
             **PLOTLY_LAYOUT,
             barmode="stack",
@@ -1901,7 +1887,7 @@ def pagina_clima():
 
                 st.markdown("---")
 
-                st.markdown(f"#### Ranking Analítico: {label_name}")
+                st.markdown(f"### Ranking Analítico: {label_name}")
                 if agregacao == "Município":
                     df_top = df_merged.sort_values(by=col_name, ascending=False).head(15)
                     df_top = df_top.iloc[::-1]
@@ -1912,7 +1898,9 @@ def pagina_clima():
                         text_auto='.1f',
                         title="Top 15 Municípios de Maior Risco Climático"
                     )
-                    fig_chart.update_layout(**PLOTLY_LAYOUT, height=600)
+                    fig_chart.update_layout(**PLOTLY_LAYOUT, height=600,
+                                            uniformtext_minsize=13, uniformtext_mode='show')
+                    fig_chart.update_traces(textfont_size=13)
                     st.plotly_chart(apply_institutional_style(fig_chart), use_container_width=True, config=PLOTLY_CONFIG)
 
                 elif agregacao == "Unidade da Federação":
@@ -1925,7 +1913,9 @@ def pagina_clima():
                         text_auto='.1f',
                         title="Ranking Estadual de Risco Climático"
                     )
-                    fig_chart.update_layout(**PLOTLY_LAYOUT, height=700)
+                    fig_chart.update_layout(**PLOTLY_LAYOUT, height=700,
+                                            uniformtext_minsize=13, uniformtext_mode='show')
+                    fig_chart.update_traces(textfont_size=13)
                     st.plotly_chart(apply_institutional_style(fig_chart), use_container_width=True, config=PLOTLY_CONFIG)
 
                 else:
@@ -1940,7 +1930,9 @@ def pagina_clima():
                         text_auto='.1f'
                     )
                     fig_chart.update_layout(**PLOTLY_LAYOUT, height=450,
-                                            legend=dict(title="", orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+                                            legend=dict(title="", orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                                            uniformtext_minsize=13, uniformtext_mode='show')
+                    fig_chart.update_traces(textfont_size=13)
                     st.plotly_chart(apply_institutional_style(fig_chart), use_container_width=True, config=PLOTLY_CONFIG)
 
                 st.markdown(
@@ -2136,6 +2128,7 @@ PAGES = {
 if pagina in PAGES:
     PAGES[pagina]()
 else:
+
     st.error("Página não encontrada.")
 
 # Espaçamento final
